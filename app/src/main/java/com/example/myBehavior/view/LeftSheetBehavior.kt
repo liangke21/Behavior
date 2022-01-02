@@ -184,7 +184,6 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V>() {
 
     var halfExpandedRatio = 0.5f
 
-    private var ignoreEvents = false
 
     /**
      * 速度追踪器
@@ -195,6 +194,13 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V>() {
      * 初始化y
      */
     private var initialY = 0
+
+    private var ignoreEvents = false
+
+    private var lastNestedScrollDy = 0
+
+    private var nestedScrolled = false
+
     //</editor-fold>
 
     //<editor-fold desc="行为" >
@@ -391,11 +397,61 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V>() {
     }
 
     override fun onStartNestedScroll(coordinatorLayout: CoordinatorLayout, child: V, directTargetChild: View, target: View, axes: Int, type: Int): Boolean {
-        return super.onStartNestedScroll(coordinatorLayout, child, directTargetChild, target, axes, type)
+        lastNestedScrollDy = 0
+        nestedScrolled = false
+        return axes and ViewCompat.SCROLL_AXIS_VERTICAL != 0
     }
 
     override fun onNestedPreScroll(coordinatorLayout: CoordinatorLayout, child: V, target: View, dx: Int, dy: Int, consumed: IntArray, type: Int) {
-        super.onNestedPreScroll(coordinatorLayout, child, target, dx, dy, consumed, type)
+        if (type == ViewCompat.TYPE_NON_TOUCH) {
+            // Ignore fling here. The ViewDragHelper handles it.
+            return
+        }
+        val scrollingChild = if (nestedScrollingChildRef != null) nestedScrollingChildRef!!.get() else null
+        if (target !== scrollingChild) {
+            return
+        }
+        // TODO 底部改右部
+        val currentTop = child.right
+        val newTop = currentTop - dy
+        if (dy > 0) { // Upward
+            if (newTop < getExpandedOffset()) {
+                consumed[1] = currentTop - getExpandedOffset()
+                //TODO 顶部和底部 改 左部和右部
+                ViewCompat.offsetLeftAndRight(child, -consumed[1])
+                setStateInternal(STATE_EXPANDED)
+            } else {
+                if (!draggable) {
+                    // Prevent dragging
+                    return
+                }
+                consumed[1] = dy
+                //TODO 顶部和底部 改 左部和右部
+                ViewCompat.offsetLeftAndRight(child, -dy)
+                setStateInternal(STATE_DRAGGING)
+            }
+        } else if (dy < 0) { // Downward
+            if (!target.canScrollVertically(-1)) {
+                if (newTop <= collapsedOffset || hideable) {
+                    if (!draggable) {
+                        // Prevent dragging
+                        return
+                    }
+                    consumed[1] = dy
+                    //TODO 顶部和底部 改 左部和右部
+                    ViewCompat.offsetLeftAndRight(child, -dy)
+                    setStateInternal(STATE_DRAGGING)
+                } else {
+                    consumed[1] = currentTop - collapsedOffset
+                    ViewCompat.offsetLeftAndRight(child, -consumed[1])
+                    setStateInternal(STATE_COLLAPSED)
+                }
+            }
+        }
+        //todo 顶部换右
+        dispatchOnSlide(child.right)
+        lastNestedScrollDy = dy
+        nestedScrolled = true
     }
 
     override fun onStopNestedScroll(coordinatorLayout: CoordinatorLayout, child: V, target: View, type: Int) {
