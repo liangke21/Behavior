@@ -455,15 +455,97 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V>() {
     }
 
     override fun onStopNestedScroll(coordinatorLayout: CoordinatorLayout, child: V, target: View, type: Int) {
-        super.onStopNestedScroll(coordinatorLayout, child, target, type)
+        // TODO 顶部换右
+        if (child.right == getExpandedOffset()) {
+            setStateInternal(STATE_EXPANDED)
+            return
+        }
+        if (nestedScrollingChildRef == null || target !== nestedScrollingChildRef!!.get() || !nestedScrolled) {
+            return
+        }
+        val top: Int
+        val targetState: Int
+        if (lastNestedScrollDy > 0) {
+            if (fitToContents) {
+                top = fitToContentsOffset
+                targetState = STATE_EXPANDED
+            } else {
+                // TODO 顶部换右
+                val currentTop = child.right
+                if (currentTop > halfExpandedOffset) {
+                    top = halfExpandedOffset
+                    targetState = STATE_HALF_EXPANDED
+                } else {
+                    top = expandedOffsetL
+                    targetState = STATE_EXPANDED
+                }
+            }
+        } else if (hideable && shouldHide(child, getYVelocity())) {
+            top = parentHeight
+            targetState = STATE_HIDDEN
+        } else if (lastNestedScrollDy == 0) {
+            // TODO 顶部换右
+            val currentTop = child.right
+            if (fitToContents) {
+                if (Math.abs(currentTop - fitToContentsOffset) < Math.abs(currentTop - collapsedOffset)) {
+                    top = fitToContentsOffset
+                    targetState = STATE_EXPANDED
+                } else {
+                    top = collapsedOffset
+                    targetState = STATE_COLLAPSED
+                }
+            } else {
+                if (currentTop < halfExpandedOffset) {
+                    if (currentTop < Math.abs(currentTop - collapsedOffset)) {
+                        top = expandedOffsetL
+                        targetState = STATE_EXPANDED
+                    } else {
+                        top = halfExpandedOffset
+                        targetState = STATE_HALF_EXPANDED
+                    }
+                } else {
+                    if (Math.abs(currentTop - halfExpandedOffset) < Math.abs(currentTop - collapsedOffset)) {
+                        top = halfExpandedOffset
+                        targetState = STATE_HALF_EXPANDED
+                    } else {
+                        top = collapsedOffset
+                        targetState = STATE_COLLAPSED
+                    }
+                }
+            }
+        } else {
+            if (fitToContents) {
+                top = collapsedOffset
+                targetState = STATE_COLLAPSED
+            } else {
+                // Settle to nearest height.
+                // TODO 顶部换右
+                val currentTop = child.right
+                if (Math.abs(currentTop - halfExpandedOffset) < Math.abs(currentTop - collapsedOffset)) {
+                    top = halfExpandedOffset
+                    targetState = STATE_HALF_EXPANDED
+                } else {
+                    top = collapsedOffset
+                    targetState = STATE_COLLAPSED
+                }
+            }
+        }
+        startSettlingAnimation(child, targetState, top, false)
+        nestedScrolled = false
     }
 
     override fun onNestedScroll(coordinatorLayout: CoordinatorLayout, child: V, target: View, dxConsumed: Int, dyConsumed: Int, dxUnconsumed: Int, dyUnconsumed: Int, type: Int, consumed: IntArray) {
-        super.onNestedScroll(coordinatorLayout, child, target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed, type, consumed)
+
     }
 
     override fun onNestedPreFling(coordinatorLayout: CoordinatorLayout, child: V, target: View, velocityX: Float, velocityY: Float): Boolean {
-        return super.onNestedPreFling(coordinatorLayout, child, target, velocityX, velocityY)
+        return if (nestedScrollingChildRef != null) {
+            (target === nestedScrollingChildRef!!.get()
+                    && (state != STATE_EXPANDED
+                    || super.onNestedPreFling(coordinatorLayout, child, target, velocityX, velocityY)))
+        } else {
+            false
+        }
     }
     //</editor-fold>
 
@@ -841,7 +923,13 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V>() {
 
     //<editor-fold desc="私有方法区" >
 
-
+    private  fun getYVelocity(): Float {
+        if (velocityTracker == null) {
+            return 0f
+        }
+        velocityTracker!!.computeCurrentVelocity(1000, maximumVelocity)
+        return velocityTracker!!.getYVelocity(activePointerId)
+    }
 
     private  fun reset() {
         activePointerId = ViewDragHelper.INVALID_POINTER
