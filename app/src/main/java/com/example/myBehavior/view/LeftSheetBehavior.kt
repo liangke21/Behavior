@@ -7,6 +7,7 @@ import android.os.Build.VERSION_CODES
 import android.os.Parcel
 import android.os.Parcelable
 import android.view.MotionEvent
+import android.view.VelocityTracker
 import android.view.View
 import android.view.ViewGroup
 import android.view.accessibility.AccessibilityEvent
@@ -24,7 +25,6 @@ import androidx.customview.widget.ViewDragHelper
 import com.example.myBehavior.R
 import com.example.myBehavior.internal.ViewUtils
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback
 import com.google.android.material.shape.MaterialShapeDrawable
 import java.lang.ref.WeakReference
 
@@ -183,6 +183,18 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V>() {
     var elevation = -1f
 
     var halfExpandedRatio = 0.5f
+
+    private var ignoreEvents = false
+
+    /**
+     * 速度追踪器
+     */
+    private var velocityTracker: VelocityTracker? = null
+
+    /**
+     * 初始化y
+     */
+    private var initialY = 0
     //</editor-fold>
 
     //<editor-fold desc="行为" >
@@ -290,8 +302,63 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V>() {
         return true
     }
 
+    /**
+     * 拦截触摸事件
+     */
     override fun onInterceptTouchEvent(parent: CoordinatorLayout, child: V, ev: MotionEvent): Boolean {
-        return super.onInterceptTouchEvent(parent, child, ev)
+        if (!child.isShown || !draggable) {
+            ignoreEvents = true
+            return false
+        }
+        val action: Int = ev.getActionMasked()
+        // Record the velocity
+        if (action == MotionEvent.ACTION_DOWN) { //按下
+            reset()
+        }
+        if (velocityTracker == null) {
+            velocityTracker = VelocityTracker.obtain()
+        }
+        velocityTracker?.addMovement(ev)
+        when (action) {
+            MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                touchingScrollingChild = false
+                activePointerId = MotionEvent.INVALID_POINTER_ID
+                // Reset the ignore flag
+                if (ignoreEvents) {
+                    ignoreEvents = false
+                    return false
+                }
+            }
+            MotionEvent.ACTION_DOWN -> {
+                val initialX =ev.getX() as Int
+                initialY = ev.getY() as Int
+                // Only intercept nested scrolling events here if the view not being moved by the
+                // ViewDragHelper.
+                if (state != STATE_SETTLING) {
+                    val scroll = if (nestedScrollingChildRef != null) nestedScrollingChildRef!!.get() else null
+                    if (scroll != null && parent.isPointInChildBounds(scroll, initialX, initialY)) {
+                        activePointerId = ev.getPointerId(ev.getActionIndex())
+                        touchingScrollingChild = true
+                    }
+                }
+                ignoreEvents = (activePointerId == MotionEvent.INVALID_POINTER_ID
+                        && !parent.isPointInChildBounds(child, initialX, initialY))
+            }
+            else -> {}
+        }
+        if (!ignoreEvents
+            && viewDragHelper != null && viewDragHelper!!.shouldInterceptTouchEvent(ev)
+        ) {
+            return true
+        }
+        // We have to handle cases that the ViewDragHelper does not capture the bottom sheet because
+        // it is not the top most view of its parent. This is not necessary when the touch event is
+        // happening over the scrolling content as nested scrolling logic handles that case.
+
+        val scroll = if (nestedScrollingChildRef != null) nestedScrollingChildRef!!.get() else null
+        return (action == MotionEvent.ACTION_MOVE && scroll != null && !ignoreEvents
+                && state != STATE_DRAGGING && !parent.isPointInChildBounds(scroll, ev.getX() as Int, ev.getY() as Int)
+                && viewDragHelper != null && Math.abs(initialY - ev.getY()) > viewDragHelper!!.touchSlop)
     }
 
     override fun onTouchEvent(parent: CoordinatorLayout, child: V, ev: MotionEvent): Boolean {
@@ -540,7 +607,8 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V>() {
         override fun onViewPositionChanged(
             changedView: View, left: Int, top: Int, dx: Int, dy: Int
         ) {
-            dispatchOnSlide(top)
+            // TODO 顶部换左边
+            dispatchOnSlide(left)
         }
 
         override fun onViewDragStateChanged(state: Int) {
@@ -692,6 +760,17 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V>() {
 
     //<editor-fold desc="私有方法区" >
 
+
+
+    private  fun reset() {
+        activePointerId = ViewDragHelper.INVALID_POINTER
+        if (velocityTracker != null) {
+            velocityTracker!!.recycle()
+            velocityTracker = null
+        }
+    }
+
+
     //<editor-fold desc="计算半扩展偏移" >
     private fun calculateHalfExpandedOffset() {
         halfExpandedOffset = (parentHeight * (1 - halfExpandedRatio)) as Int
@@ -746,7 +825,7 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V>() {
     private fun updatePeekHeight(animate: Boolean) {
         if (viewRef != null) {
             calculateCollapsedOffset()
-            if (state == BottomSheetBehavior.STATE_COLLAPSED) {
+            if (state == STATE_COLLAPSED) {
                 val view = viewRef!!.get()
                 if (view != null) {
                     if (animate) {
