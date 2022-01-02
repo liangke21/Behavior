@@ -362,7 +362,32 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V>() {
     }
 
     override fun onTouchEvent(parent: CoordinatorLayout, child: V, ev: MotionEvent): Boolean {
-        return super.onTouchEvent(parent, child, ev)
+        if (!child.isShown) {
+            return false
+        }
+        val action: Int = ev.getActionMasked()
+        if (state == STATE_DRAGGING && action == MotionEvent.ACTION_DOWN) {
+            return true
+        }
+        if (viewDragHelper != null) {
+            viewDragHelper!!.processTouchEvent(ev)
+        }
+        // Record the velocity
+        if (action == MotionEvent.ACTION_DOWN) {
+            reset()
+        }
+        if (velocityTracker == null) {
+            velocityTracker = VelocityTracker.obtain()
+        }
+        velocityTracker!!.addMovement(ev)
+        // The ViewDragHelper tries to capture only the top-most View. We have to explicitly tell it
+        // to capture the bottom sheet in case it is not captured and the touch slop is passed.
+        if (viewDragHelper != null && action == MotionEvent.ACTION_MOVE && !ignoreEvents) {
+            if (Math.abs(initialY - ev.getY()) > viewDragHelper!!.touchSlop) {
+                viewDragHelper!!.captureChildView(child, ev.getPointerId(ev.getActionIndex()))
+            }
+        }
+        return !ignoreEvents
     }
 
     override fun onStartNestedScroll(coordinatorLayout: CoordinatorLayout, child: V, directTargetChild: View, target: View, axes: Int, type: Int): Boolean {
