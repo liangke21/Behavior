@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  app:behavior_peekHeight="50dp"   底部高度-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  android:id="@+id/sheet"
+  android:orientation="vertical"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  app:behavior_peekHeight="50dp"
+  app:behavior_hideable="true"
+  app:layout_behavior="@string/bottom_sheet_behavior"
+  android:background="#CDDC39"
+  >
+
+  <TextView
+    android:layout_width="match_parent"
+    android:layout_height="80dp"
+    android:text="尽管呼吸着同一天空的气息"
+    android:textSize="20sp"
+    android:gravity="center"/>
+
+  <TextView
+    android:layout_width="match_parent"
+    android:layout_height="80dp"
+    android:text="却无法拥抱到你"
+    android:textSize="20sp"
+    android:gravity="center"/>
+  <TextView
+    android:layout_width="match_parent"
+    android:layout_height="80dp"
+    android:text="如果转换了时空身份和姓名"
+    android:textSize="20sp"
+    android:gravity="center"/>
+  <TextView
+    android:layout_width="match_parent"
+    android:layout_height="80dp"
+    android:text="但愿认得你眼睛"
+    android:textSize="20sp"
+    android:gravity="center"/>
+
+</LinearLayout>

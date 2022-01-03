@@ -1,17 +1,24 @@
 package com.example.myBehavior
 
+import android.annotation.SuppressLint
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import androidx.drawerlayout.widget.DrawerLayout
+import android.widget.Button
 import com.example.myBehavior.view.LeftSheetBehavior
-import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.example.myBehavior.view.LeftSheetBehavior.Companion.STATE_EXPANDED
+
 
 class MainActivity : AppCompatActivity() {
+    @SuppressLint("WrongConstant")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        BottomSheetBehavior
-        DrawerLayout
+           findViewById<Button>(R.id.button).setOnClickListener {
+
+               val bi= LeftSheetBehavior.from(findViewById(R.id.sheet))
+               bi.setState(STATE_EXPANDED)
+
+           }
     }
 }
