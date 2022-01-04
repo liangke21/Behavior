@@ -24,6 +24,8 @@ class MainActivity : AppCompatActivity() {
 
             val bi = LeftSheetBehavior.from(findViewById(R.id.sheet))
             bi.setState(STATE_EXPANDED)
+            supportFragmentManager.beginTransaction().replace(R.id.fl2,BlankFragment()).commit()
+            supportFragmentManager.executePendingTransactions()
 
         }
 
