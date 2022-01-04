@@ -606,7 +606,7 @@ class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
             // todo 高改宽
             ViewCompat.offsetLeftAndRight(child, parentWidth)
         } else if (state == STATE_COLLAPSED) {
-            ViewCompat.offsetLeftAndRight(child, collapsedOffset)
+            ViewCompat.offsetLeftAndRight(child, -942)
         } else if (state == STATE_DRAGGING || state == STATE_SETTLING) {
             //TODO 顶部换右边
             ViewCompat.offsetTopAndBottom(child, savedTop - child.right)
@@ -1102,7 +1102,7 @@ class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
             changedView: View, left: Int, top: Int, dx: Int, dy: Int
         ) {
             // TODO 顶部换左边
-            dispatchOnSlide(top)
+            dispatchOnSlide(left)
         }
 
         override fun onViewDragStateChanged(state: Int) {
@@ -1225,6 +1225,17 @@ class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
         }
 
         override fun getViewVerticalDragRange(child: View): Int {
+            return super.getViewVerticalDragRange(child)
+        }
+
+        /**
+         * Return the magnitude of a draggable child view's horizontal range of motion in pixels.
+         * This method should return 0 for views that cannot move horizontally.
+         *
+         * @param child Child view to check
+         * @return range of horizontal motion in pixels
+         */
+        override fun getViewHorizontalDragRange(child: View): Int {
             return if (hideable) {
                 // todo 高改宽
                 parentWidth
@@ -1675,8 +1686,9 @@ class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
     fun startSettlingAnimation(child: View, state: Int, top: Int, settleFromViewDragHelper: Boolean) {
         Log.v(TAG, "startSettlingAnimation")
         val startedSettling = (viewDragHelper != null
-                //TODO 有方向未更改
-                && if (settleFromViewDragHelper) viewDragHelper!!.settleCapturedViewAt(child.left, top) else viewDragHelper!!.smoothSlideViewTo(child, child.left, top))
+                //TODO  超级核心代码 实现 自动上下或则左右展开
+                //if (settleFromViewDragHelper) viewDragHelper!!.settleCapturedViewAt(child.left, top) else viewDragHelper!!.smoothSlideViewTo(child, child.left, top))
+                && if (settleFromViewDragHelper) viewDragHelper!!.settleCapturedViewAt(child.top, top) else viewDragHelper!!.smoothSlideViewTo(child, child.top, top))
         Log.v(TAG, "startSettlingAnimation startedSettling : $startedSettling")
         if (startedSettling) {
             setStateInternal(STATE_SETTLING)
