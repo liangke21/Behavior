@@ -27,7 +27,7 @@ import androidx.customview.view.AbsSavedState
 import androidx.customview.widget.ViewDragHelper
 import com.example.myBehavior.R
 import com.example.myBehavior.internal.ViewUtils
-import com.google.android.material.bottomsheet.BottomSheetBehavior
+
 import com.google.android.material.resources.MaterialResources
 import com.google.android.material.shape.MaterialShapeDrawable
 import com.google.android.material.shape.ShapeAppearanceModel
@@ -244,7 +244,7 @@ class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
         } else {
             setPeekHeight(
                 a.getDimensionPixelSize(
-                    R.styleable.BottomSheetBehavior_Layout_behavior_peekHeight, BottomSheetBehavior.PEEK_HEIGHT_AUTO
+                    R.styleable.BottomSheetBehavior_Layout_behavior_peekHeight, PEEK_HEIGHT_AUTO
                 )
             )
         }
@@ -259,7 +259,7 @@ class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
             a.getBoolean(R.styleable.BottomSheetBehavior_Layout_behavior_skipCollapsed, false)
         )
         setDraggable(a.getBoolean(R.styleable.BottomSheetBehavior_Layout_behavior_draggable, true))
-        setSaveFlags(a.getInt(R.styleable.BottomSheetBehavior_Layout_behavior_saveFlags, BottomSheetBehavior.SAVE_NONE))
+        setSaveFlags(a.getInt(R.styleable.BottomSheetBehavior_Layout_behavior_saveFlags, SAVE_NONE))
         setHalfExpandedRatio(
             a.getFloat(R.styleable.BottomSheetBehavior_Layout_behavior_halfExpandedRatio, 0.5f)
         )
@@ -423,7 +423,7 @@ class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
      * @attr ref
      * com.google.android.material.R.styleable#BottomSheetBehavior_Layout_behavior_peekHeight
      */
-    open fun setPeekHeight(peekHeight: Int) {
+     fun setPeekHeight(peekHeight: Int) {
         setPeekHeight(peekHeight, false)
     }
 
@@ -581,7 +581,7 @@ class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
             viewDragHelper = dragCallback?.let { ViewDragHelper.create(parent, it) }
         }
         //TODO 顶部换右边
-        val savedTop = child.top
+        val savedTop = child.right
         // 首先让父级布局
         parent.onLayoutChild(child, layoutDirection)
         // 偏移底部纸张
@@ -603,7 +603,7 @@ class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
             ViewCompat.offsetTopAndBottom(child, collapsedOffset)
         } else if (state == STATE_DRAGGING || state == STATE_SETTLING) {
             //TODO 顶部换右边
-            ViewCompat.offsetTopAndBottom(child, savedTop - child.right)
+            ViewCompat.offsetTopAndBottom(child, savedTop - child.top)
         }
 
         nestedScrollingChildRef = WeakReference<View>(findScrollingChild(child))
@@ -720,7 +720,7 @@ class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
             if (newTop < getExpandedOffset()) {
                 consumed[1] = currentTop - getExpandedOffset()
                 //TODO 顶部和底部 改 左部和右部
-                ViewCompat.offsetTopAndBottom(child, -consumed[1])
+                ViewCompat.offsetLeftAndRight(child, -consumed[1])
                 setStateInternal(STATE_EXPANDED)
             } else {
                 if (!draggable) {
@@ -729,7 +729,7 @@ class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
                 }
                 consumed[1] = dy
                 //TODO 顶部和底部 改 左部和右部
-                ViewCompat.offsetTopAndBottom(child, -dy)
+                ViewCompat.offsetLeftAndRight(child, -dy)
                 setStateInternal(STATE_DRAGGING)
             }
         } else if (dy < 0) { // Downward
@@ -741,17 +741,17 @@ class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
                     }
                     consumed[1] = dy
                     //TODO 顶部和底部 改 左部和右部
-                    ViewCompat.offsetTopAndBottom(child, -dy)
+                    ViewCompat.offsetLeftAndRight(child, -dy)
                     setStateInternal(STATE_DRAGGING)
                 } else {
                     consumed[1] = currentTop - collapsedOffset
-                    ViewCompat.offsetTopAndBottom(child, -consumed[1])
+                    ViewCompat.offsetLeftAndRight(child, -consumed[1])
                     setStateInternal(STATE_COLLAPSED)
                 }
             }
         }
         //todo 顶部换右
-        dispatchOnSlide(child.top)
+        dispatchOnSlide(child.right)
         lastNestedScrollDy = dy
         nestedScrolled = true
     }
@@ -1086,7 +1086,7 @@ class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
                     return false
                 }
             }
-            return viewRef != null && viewRef!!.get() === child
+            return viewRef != null && viewRef!!.get() == child
         }
 
         override fun onViewPositionChanged(
@@ -1221,6 +1221,8 @@ class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
                 collapsedOffset
             }
         }
+
+
     }
     //</editor-fold>
 

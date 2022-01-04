@@ -15,9 +15,9 @@ object ViewUtils {
         // 创建视图填充状态的快照。
         val initialPadding = RelativePadding(
             ViewCompat.getPaddingStart(view),
-            view.paddingRight,//TODO 顶部换右边 view.paddingTop,
+            view.paddingTop,//TODO 顶部换右边 view.paddingTop,
             ViewCompat.getPaddingEnd(view),
-            view.paddingLeft //TODO 左边换底部 view.paddingBottom
+            view.paddingBottom //TODO 左边换底部 view.paddingBottom
         )
 
         // 设置一个实际的 OnApplyWindowInsetsListener 代理给定的回调，也传递

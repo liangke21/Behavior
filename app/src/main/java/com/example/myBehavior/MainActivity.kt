@@ -4,21 +4,34 @@ import android.annotation.SuppressLint
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
+import androidx.drawerlayout.widget.DrawerLayout
+import com.example.myBehavior.databinding.ActivityMainBinding
 import com.example.myBehavior.view.LeftSheetBehavior
 import com.example.myBehavior.view.LeftSheetBehavior.Companion.STATE_EXPANDED
 
 
 class MainActivity : AppCompatActivity() {
+
+    private lateinit var binding: ActivityMainBinding
+
     @SuppressLint("WrongConstant")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-           findViewById<Button>(R.id.button).setOnClickListener {
+        findViewById<Button>(R.id.button).setOnClickListener {
 
-               val bi= LeftSheetBehavior.from(findViewById(R.id.sheet))
-               bi.setState(STATE_EXPANDED)
+            val bi = LeftSheetBehavior.from(findViewById(R.id.sheet))
+            bi.setState(STATE_EXPANDED)
 
-           }
+        }
+
+        binding.button6.setOnClickListener {
+            supportFragmentManager.beginTransaction().replace(R.id.fl,BlankFragment()).commit()
+            supportFragmentManager.executePendingTransactions()
+        }
+
+
     }
 }
