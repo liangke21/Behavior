@@ -27,6 +27,8 @@ import androidx.customview.view.AbsSavedState
 import androidx.customview.widget.ViewDragHelper
 import com.example.myBehavior.R
 import com.example.myBehavior.internal.ViewUtils
+import com.example.myBehavior.koltin.LogT.lll
+import com.example.myBehavior.koltin.negate
 
 import com.google.android.material.resources.MaterialResources
 import com.google.android.material.shape.MaterialShapeDrawable
@@ -209,6 +211,36 @@ class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
 
     /** 用于底片的默认形状外观  */
     private var shapeAppearanceModelDefault: ShapeAppearanceModel? = null
+
+
+
+    /**
+     * 触摸滚动的孩子
+     */
+    var touchingScrollingChild: Boolean = false
+
+    /**
+     * 活动指针 ID
+     */
+    var activePointerId = 0
+
+    /**
+     * 嵌套滚动子引用
+     */
+    var nestedScrollingChildRef: WeakReference<View>? = null
+
+    /**
+     * 可拖动的
+     */
+    private var draggable = true
+
+    /**
+     *   扩展偏移
+     */
+    var expandedOffsetL = 0
+
+    private val DEF_STYLE_RES = R.style.Widget_Design_BottomSheet_Modal
+
 
 
     //</editor-fold>
@@ -601,15 +633,15 @@ class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
         if (state == STATE_EXPANDED) {
             ViewCompat.offsetLeftAndRight(child, getExpandedOffset())
         } else if (state == STATE_HALF_EXPANDED) {
-            ViewCompat.offsetTopAndBottom(child, halfExpandedOffset)
+            ViewCompat.offsetLeftAndRight(child, halfExpandedOffset)
         } else if (hideable && state == STATE_HIDDEN) {
             // todo 高改宽
             ViewCompat.offsetLeftAndRight(child, parentWidth)
         } else if (state == STATE_COLLAPSED) {
-            ViewCompat.offsetLeftAndRight(child, -942)
+            ViewCompat.offsetLeftAndRight(child, collapsedOffset)
         } else if (state == STATE_DRAGGING || state == STATE_SETTLING) {
             //TODO 顶部换右边
-            ViewCompat.offsetTopAndBottom(child, savedTop - child.right)
+            ViewCompat.offsetLeftAndRight(child, savedTop - child.right)
         }
 
         //</editor-fold>
@@ -666,9 +698,9 @@ class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
         ) {
             return true
         }
-        // We have to handle cases that the ViewDragHelper does not capture the bottom sheet because
-        // it is not the top most view of its parent. This is not necessary when the touch event is
-        // happening over the scrolling content as nested scrolling logic handles that case.
+        // 我们必须处理 ViewDragHelper 不捕获底部工作表的情况，因为
+        // 它不是其父级的最顶层视图。当触摸事件发生时，这不是必需的
+        // 当嵌套滚动逻辑处理这种情况时，发生在滚动内容上。
 
         val scroll = if (nestedScrollingChildRef != null) nestedScrollingChildRef!!.get() else null
         return (action == MotionEvent.ACTION_MOVE && scroll != null && !ignoreEvents
@@ -708,10 +740,11 @@ class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
     override fun onStartNestedScroll(coordinatorLayout: CoordinatorLayout, child: V, directTargetChild: View, target: View, axes: Int, type: Int): Boolean {
         lastNestedScrollDy = 0
         nestedScrolled = false
-        return axes and ViewCompat.SCROLL_AXIS_VERTICAL != 0
+        return axes and ViewCompat.SCROLL_AXIS_HORIZONTAL != 0 // todo 垂直改为垂直
     }
 
     override fun onNestedPreScroll(coordinatorLayout: CoordinatorLayout, child: V, target: View, dx: Int, dy: Int, consumed: IntArray, type: Int) {
+        Log.v(TAG, lll())
         if (type == ViewCompat.TYPE_NON_TOUCH) {
             // Ignore fling here. The ViewDragHelper handles it.
             return
@@ -764,6 +797,7 @@ class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
     }
 
     override fun onStopNestedScroll(coordinatorLayout: CoordinatorLayout, child: V, target: View, type: Int) {
+        Log.v(TAG, lll())
         // TODO 顶部换右
         if (child.right == getExpandedOffset()) {
             setStateInternal(STATE_EXPANDED)
@@ -889,6 +923,11 @@ class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
 
     //</editor-fold>
     companion object {
+
+
+
+
+
 
         const val TAG = "LeftSheetBehavior"
 
@@ -1049,32 +1088,6 @@ class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
 
     //<editor-fold desc="匿名内" >
 
-    /**
-     * 触摸滚动的孩子
-     */
-    var touchingScrollingChild: Boolean = false
-
-    /**
-     * 活动指针 ID
-     */
-    var activePointerId = 0
-
-    /**
-     * 嵌套滚动子引用
-     */
-    var nestedScrollingChildRef: WeakReference<View>? = null
-
-    /**
-     * 可拖动的
-     */
-    private var draggable = true
-
-    /**
-     *   扩展偏移
-     */
-    var expandedOffsetL = 0
-
-    private val DEF_STYLE_RES = R.style.Widget_Design_BottomSheet_Modal
 
 
     /**
@@ -1219,14 +1232,14 @@ class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
         }
 
         override fun clampViewPositionHorizontal(child: View, left: Int, dx: Int): Int {
+
+            Log.d(TAG, " left $left  getExpandedOffset  ${getExpandedOffset()}  hideable : $hideable   parentWidth :  $parentWidth   collapsedOffset : $collapsedOffset")
             return MathUtils.clamp(   //todo 高改宽
                 left, getExpandedOffset(), if (hideable) parentWidth else collapsedOffset
             )
         }
 
-        override fun getViewVerticalDragRange(child: View): Int {
-            return super.getViewVerticalDragRange(child)
-        }
+
 
         /**
          * Return the magnitude of a draggable child view's horizontal range of motion in pixels.
@@ -1319,7 +1332,7 @@ class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
             ViewUtils.doOnApplyWindowInsets(child, object : ViewUtils.OnApplyWindowInsetsListener {
                 override fun onApplyWindowInsets(view: View, insets: WindowInsetsCompat, initialPadding: ViewUtils.RelativePadding): WindowInsetsCompat {
                     //TODO 左换底部
-                    gestureInsetLeft = insets.mandatorySystemGestureInsets.left
+                    gestureInsetLeft = insets.mandatorySystemGestureInsets.bottom
                     updatePeekHeight( /* animate= */false)
                     return insets
                 }
@@ -1352,7 +1365,7 @@ class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
      * 结算到状态待定布局
      */
     private fun settleToStatePendingLayout(@State state: Int) {
-        Log.v(TAG, "settleToStatePendingLayout")
+        Log.v(TAG, lll())
         val child = viewRef!!.get() ?: return
         // 开始动画；如果有一个待处理的布局，请等待。
         val parent = child.parent
@@ -1379,11 +1392,11 @@ class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
     private fun calculateCollapsedOffset() {
         val peek: Int = calculatePeekHeight()
         if (fitToContents) {
-            // todo 高改宽
-            collapsedOffset = Math.max(parentWidth - peek, fitToContentsOffset)
+            // todo 高改宽            //todo 整数转负数
+            collapsedOffset = Math.max(parentWidth - peek, fitToContentsOffset).negate()
         } else {
-            // todo 高改宽
-            collapsedOffset = parentWidth - peek
+            // todo 高改宽            //todo 整数转负数
+            collapsedOffset = (parentWidth - peek).negate()
         }
     }
 
@@ -1407,7 +1420,7 @@ class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
 
     //<editor-fold desc="更新重要的辅助功能" >
     private fun updateImportantForAccessibility(expanded: Boolean) {
-        Log.v(TAG, "updateImportantForAccessibility   expanded : $expanded")
+        Log.v(TAG, lll()+" expanded : $expanded")
         if (viewRef == null) {
             return
         }
@@ -1459,7 +1472,7 @@ class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
 
     //<editor-fold desc="更新目标状态的可绘制对象" >
     private fun updateDrawableForTargetState(@State state: Int) {
-        Log.v(TAG, "updateDrawableForTargetState")
+        Log.v(TAG, lll())
         if (state == STATE_SETTLING) {
             // 特殊情况：我们想知道我们正在解决哪个状态，所以等待另一个调用。
             return
@@ -1483,7 +1496,8 @@ class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
 
     //<editor-fold desc="更新辅助功能操作" >
     private fun updateAccessibilityActions() {
-        Log.v(TAG, "updateAccessibilityActions")
+        Log.v(TAG, lll())
+        Log.v(TAG, "_________________________________________")
         if (viewRef == null) {
             return
         }
@@ -1657,7 +1671,7 @@ class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
      * 解决状态
      */
     fun settleToState(child: View, state: Int) {
-        Log.v(TAG, " settleToState")
+        Log.v(TAG, lll())
         var state = state
         var top: Int
         if (state == STATE_COLLAPSED) {
@@ -1684,7 +1698,7 @@ class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
      * 开始稳定定动画
      */
     fun startSettlingAnimation(child: View, state: Int, top: Int, settleFromViewDragHelper: Boolean) {
-        Log.v(TAG, "startSettlingAnimation")
+        Log.v(TAG, lll())
         val startedSettling = (viewDragHelper != null
                 //TODO  超级核心代码 实现 自动上下或则左右展开
                 //if (settleFromViewDragHelper) viewDragHelper!!.settleCapturedViewAt(child.left, top) else viewDragHelper!!.smoothSlideViewTo(child, child.left, top))
@@ -1714,8 +1728,11 @@ class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
         }
     }
 
+    /**
+     * 设置内部状态
+     */
     fun setStateInternal(@State state: Int) {
-        Log.v(TAG, "setStateInternal")
+        Log.v(TAG, lll())
         if (this.state == state) {
             return
         }
