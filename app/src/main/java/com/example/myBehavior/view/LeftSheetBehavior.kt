@@ -62,68 +62,12 @@ class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
 
     //<editor-fold desc="变量" >
 
-    //<editor-fold desc="状态" >
-    /**
-     * 状态
-     */
+
     @State
-    var state = STATE_COLLAPSED
+    var state = STATE_COLLAPSED  //状态
 
-    /**
-     * 设置窥视高度
-     */
-    private var peekHeight = 0
-
-    /**
-     *  合适类容
-     */
-    private var fitToContents = true
-
-    /**
-     * 可隐藏
-     */
-    var hideable: Boolean = false
-
-    /**
-     * 跳过折叠
-     */
-    private var skipCollapsed = false
-
-    /**
-     * 折叠偏移
-     */
-    var collapsedOffset = 0
-
-    /**
-     * 合适类容偏移量
-     */
-    var fitToContentsOffset: Int = 0
-    //</editor-fold>
-
-    //<editor-fold desc="标志" >
     @SaveFlags
-    private var saveFlags = SAVE_NONE
-
-    //</editor-fold>
-
-    var viewRef: WeakReference<V>? = null
-
-    var viewDragHelper: ViewDragHelper? = null
-
-
-    /** 允许的最小窥视高度  */
-    private var peekHeightMin = 0
-
-
-    private var gestureInsetLeftIgnored = false
-
-    /** 是否使用自动查看高度。  */
-    private var peekHeightAuto = false
-
-    /**
-     * 手势插入左边
-     */
-    private var gestureInsetLeft = 0
+    private var saveFlags = SAVE_NONE // 保存标志
 
     /**
      * 父宽高
@@ -137,112 +81,43 @@ class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
     private var childHeight = 0
     private var childWidth = 0
 
-
-    /** 窥视高度手势插入缓冲区以确保足够的可滑动空间。  */
-    private var peekHeightGestureInsetBuffer = 0
-
-    /**
-     * 半展开偏移
-     */
-    var halfExpandedOffset = 0
-
-
-    /**
-     * 重要无障碍的地图
-     */
-    private var importantForAccessibilityMap: Map<View, Int>? = null
-
-    /**
-     * 更新重要的兄弟姐妹无障碍功能
-     */
-    private val updateImportantForAccessibilityOnSiblings = false
-
-    /**
-     * 是形状扩展
-     */
-    private var isShapeExpanded = false
-
-    /**
-     * 材料形状可绘制
-     */
-    private var materialShapeDrawable: MaterialShapeDrawable? = null
-
-    /**
-     * 插值动画师
-     */
-    private var interpolatorAnimator: ValueAnimator? = null
-
-    /**
-     * 回调
-     */
-    private val callbacks = ArrayList<LeftSheetCallback>()
-
-    /**
-     * 展开中途行动 ID
-     */
-    private var expandHalfwayActionId = View.NO_ID
-
-    private var settleRunnable: SettleRunnable? = null
-
-    /** 如果 Behavior 的 @shapeAppearance 属性具有非空值，则为 True  */
-    private var shapeThemingEnabled = false
-
-    var elevation = -1f
-
-    var halfExpandedRatio = 0.5f
-
-
-    /**
-     * 速度追踪器
-     */
-    private var velocityTracker: VelocityTracker? = null
-
-    /**
-     * 初始化y
-     */
-    private var initialY = 0
-
-    private var ignoreEvents = false
-
-    private var lastNestedScrollDy = 0
-
-    private var nestedScrolled = false
-
-
-    /** 用于底片的默认形状外观  */
-    private var shapeAppearanceModelDefault: ShapeAppearanceModel? = null
-
-
-
-    /**
-     * 触摸滚动的孩子
-     */
-    var touchingScrollingChild: Boolean = false
-
-    /**
-     * 活动指针 ID
-     */
-    var activePointerId = 0
-
-    /**
-     * 嵌套滚动子引用
-     */
-    var nestedScrollingChildRef: WeakReference<View>? = null
-
-    /**
-     * 可拖动的
-     */
-    private var draggable = true
-
-    /**
-     *   扩展偏移
-     */
-    var expandedOffsetL = 0
-
-    private val DEF_STYLE_RES = R.style.Widget_Design_BottomSheet_Modal
-
-
-
+    var viewRef: WeakReference<V>? = null // 弱应用 View
+    var viewDragHelper: ViewDragHelper? = null //查看拖动助手
+    private var peekHeight = 0 //设置窥视高度
+    private var peekHeightAuto = false //是否使用自动查看高度。
+    private var peekHeightMin = 0 //允许的最小窥视高度
+    private var skipCollapsed = false //跳过折叠
+    private var isShapeExpanded = false //是形状扩展
+    var halfExpandedOffset = 0 //半展开偏移
+    var halfExpandedRatio = 0.5f //半展开率
+    private var expandHalfwayActionId = View.NO_ID //展开中途行动 ID
+    var collapsedOffset = 0 //折叠偏移
+    var expandedOffsetL = 0 //扩展偏移
+    var fitToContentsOffset: Int = 0 //合适类容偏移量
+    private var lastNestedScrollDy = 0 //最后一个嵌套滚动 Dy
+    private var nestedScrolled = false //嵌套滚动
+    var touchingScrollingChild: Boolean = false //触摸滚动的孩子
+    var nestedScrollingChildRef: WeakReference<View>? = null //嵌套滚动子引用
+    private var gestureInsetLeftIgnored = false //手势插入左忽略
+    private var gestureInsetLeft = 0 //手势插入左边
+    private var peekHeightGestureInsetBuffer = 0 //窥视高度手势插入缓冲区以确保足够的可滑动空间。
+    private var draggable = true //可拖动的
+    private var fitToContents = true //合适类容
+    var hideable: Boolean = false //可隐藏
+    private var importantForAccessibilityMap: Map<View, Int>? = null //重要无障碍的地图
+    private val updateImportantForAccessibilityOnSiblings = false //更新重要的兄弟姐妹无障碍功能
+    private var materialShapeDrawable: MaterialShapeDrawable? = null//材料形状可绘制
+    private var interpolatorAnimator: ValueAnimator? = null//插值动画师
+    private val callbacks = ArrayList<LeftSheetCallback>()//回调
+    private var settleRunnable: SettleRunnable? = null //解决 Runnable
+    private var shapeThemingEnabled = false//如果 Behavior 的 @shapeAppearance 属性具有非空值，则为 True
+    var elevation = -1f //海拔
+    private var velocityTracker: VelocityTracker? = null//速度追踪器
+    private var initialY = 0 //初始化y
+    private var ignoreEvents = false //忽略事假
+    private var shapeAppearanceModelDefault: ShapeAppearanceModel? = null //用于底片的默认形状外观
+    var activePointerId = 0 //活动指针 ID
+    private val DEF_STYLE_RES = R.style.Widget_Design_BottomSheet_Modal //DEF 风格资源
     //</editor-fold>
 
     //<editor-fold desc="构造函数" >
@@ -624,7 +499,7 @@ class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
         childHeight = child.height
 
         childWidth = child.width
-        Log.d(TAG, " fitToContentsOffset  没有展示的布局 ")
+
         fitToContentsOffset = 0.coerceAtLeast(parentWidth - childWidth)
 
         calculateHalfExpandedOffset()
@@ -925,10 +800,6 @@ class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
     companion object {
 
 
-
-
-
-
         const val TAG = "LeftSheetBehavior"
 
         /**
@@ -1089,7 +960,6 @@ class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
     //<editor-fold desc="匿名内" >
 
 
-
     /**
      * 拖动回调
      */
@@ -1238,7 +1108,6 @@ class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
                 left, getExpandedOffset(), if (hideable) parentWidth else collapsedOffset
             )
         }
-
 
 
         /**
@@ -1420,7 +1289,7 @@ class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
 
     //<editor-fold desc="更新重要的辅助功能" >
     private fun updateImportantForAccessibility(expanded: Boolean) {
-        Log.v(TAG, lll()+" expanded : $expanded")
+        Log.v(TAG, lll() + " expanded : $expanded")
         if (viewRef == null) {
             return
         }
@@ -1702,7 +1571,7 @@ class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
         val startedSettling = (viewDragHelper != null
                 //TODO  超级核心代码 实现 自动上下或则左右展开
                 //if (settleFromViewDragHelper) viewDragHelper!!.settleCapturedViewAt(child.left, top) else viewDragHelper!!.smoothSlideViewTo(child, child.left, top))
-                && if (settleFromViewDragHelper) viewDragHelper!!.settleCapturedViewAt(child.top, top) else viewDragHelper!!.smoothSlideViewTo(child, child.top, top))
+                && if (settleFromViewDragHelper) viewDragHelper!!.settleCapturedViewAt(child.bottom, top) else viewDragHelper!!.smoothSlideViewTo(child, child.top, top))
         Log.v(TAG, "startSettlingAnimation startedSettling : $startedSettling")
         if (startedSettling) {
             setStateInternal(STATE_SETTLING)
