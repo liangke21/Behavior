@@ -35,7 +35,7 @@ import com.google.android.material.shape.MaterialShapeDrawable
 import com.google.android.material.shape.ShapeAppearanceModel
 import java.lang.ref.WeakReference
 
-class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
+open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
 
 
     /** 用于监视有关左部工作表的事件的回调。  */
@@ -61,8 +61,6 @@ class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
 
 
     //<editor-fold desc="变量" >
-
-
     @State
     var state = STATE_COLLAPSED  //状态
 
@@ -556,6 +554,7 @@ class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
                 initialY = ev.getY().toInt()
                 // Only intercept nested scrolling events here if the view not being moved by the
                 // ViewDragHelper.
+
                 if (state != STATE_SETTLING) {
                     val scroll = if (nestedScrollingChildRef != null) nestedScrollingChildRef!!.get() else null
                     if (scroll != null && parent.isPointInChildBounds(scroll, initialX, initialY)) {
@@ -565,6 +564,7 @@ class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
                 }
                 ignoreEvents = (activePointerId == MotionEvent.INVALID_POINTER_ID
                         && !parent.isPointInChildBounds(child, initialX, initialY))
+
             }
             else -> {}
         }
@@ -996,7 +996,7 @@ class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
 
         private fun releasedLow(child: View): Boolean {
             // 需要至少到左部的一半。
-            // todo 高改宽
+            // todo 高改宽  // todo 顶部改左
             return child.top > (parentWidth + getExpandedOffset()) / 2
         }
 
@@ -1008,7 +1008,7 @@ class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
                     top = fitToContentsOffset
                     targetState = STATE_EXPANDED
                 } else {//TODO 顶部换右边
-                    val currentTop = releasedChild.top
+                    val currentTop = releasedChild.left
                     if (currentTop > halfExpandedOffset) {
                         top = halfExpandedOffset
                         targetState = STATE_HALF_EXPANDED
@@ -1029,9 +1029,9 @@ class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
                     top = fitToContentsOffset
                     targetState = STATE_EXPANDED
                     //TODO 顶部换右边
-                } else if (Math.abs(releasedChild.right - expandedOffsetL)
+                } else if (Math.abs(releasedChild.left - expandedOffsetL)
                     //TODO 顶部换右边
-                    < Math.abs(releasedChild.right - halfExpandedOffset)
+                    < Math.abs(releasedChild.left - halfExpandedOffset)
                 ) {
                     top = expandedOffsetL
                     targetState = STATE_EXPANDED
@@ -1043,7 +1043,7 @@ class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
                 // If the Y velocity is 0 or the swipe was mostly horizontal indicated by the X velocity
                 // being greater than the Y velocity, settle to the nearest correct height.
                 //TODO 顶部换右边
-                val currentTop = releasedChild.right
+                val currentTop = releasedChild.top
                 if (fitToContents) {
                     if (Math.abs(currentTop - fitToContentsOffset)
                         < Math.abs(currentTop - collapsedOffset)
@@ -1082,7 +1082,7 @@ class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
                 } else {
                     // Settle to the nearest correct height.
                     //TODO 顶部换右边
-                    val currentTop = releasedChild.right
+                    val currentTop = releasedChild.top
                     if (Math.abs(currentTop - halfExpandedOffset)
                         < Math.abs(currentTop - collapsedOffset)
                     ) {
@@ -1097,15 +1097,20 @@ class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
             startSettlingAnimation(releasedChild, targetState, top, true)
         }
 
-        override fun clampViewPositionVertical(child: View, top: Int, dy: Int): Int {
+   /*     override fun clampViewPositionVertical(child: View, top: Int, dy: Int): Int {
             return child.top
-        }
+        }*/
 
         override fun clampViewPositionHorizontal(child: View, left: Int, dx: Int): Int {
 
-            Log.d(TAG, " left $left  getExpandedOffset  ${getExpandedOffset()}  hideable : $hideable   parentWidth :  $parentWidth   collapsedOffset : $collapsedOffset")
-            return MathUtils.clamp(   //todo 高改宽
+            Log.d(TAG, " 右滑 $left  getExpandedOffset  ${getExpandedOffset()}  hideable : $hideable   parentWidth :  $parentWidth   collapsedOffset : $collapsedOffset    MathUtils.clamp  ${MathUtils.clamp(   //todo 高改宽
                 left, getExpandedOffset(), if (hideable) parentWidth else collapsedOffset
+            )}")
+            Log.d(TAG, " 左滑 $left  getExpandedOffset  ${getExpandedOffset()}  hideable : $hideable   parentWidth :  $parentWidth   collapsedOffset : $collapsedOffset    MathUtils.clamp  ${MathUtils.clamp(   //todo 高改宽
+                left, if (hideable) -parentWidth else collapsedOffset, getExpandedOffset()
+            )}")
+            return MathUtils.clamp(   //todo 高改宽
+                left, if (hideable) -parentWidth else collapsedOffset, getExpandedOffset()
             )
         }
 
@@ -1571,7 +1576,7 @@ class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
         val startedSettling = (viewDragHelper != null
                 //TODO  超级核心代码 实现 自动上下或则左右展开
                 //if (settleFromViewDragHelper) viewDragHelper!!.settleCapturedViewAt(child.left, top) else viewDragHelper!!.smoothSlideViewTo(child, child.left, top))
-                && if (settleFromViewDragHelper) viewDragHelper!!.settleCapturedViewAt(child.bottom, top) else viewDragHelper!!.smoothSlideViewTo(child, child.top, top))
+                && if (settleFromViewDragHelper) viewDragHelper!!.settleCapturedViewAt(child.top, top) else viewDragHelper!!.smoothSlideViewTo(child, child.top, top))
         Log.v(TAG, "startSettlingAnimation startedSettling : $startedSettling")
         if (startedSettling) {
             setStateInternal(STATE_SETTLING)
