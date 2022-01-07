@@ -9,6 +9,7 @@ import com.example.myBehavior.databinding.ActivityMainBinding
 import com.example.myBehavior.view.LeftSheetBehavior
 import com.example.myBehavior.view.LeftSheetBehavior.Companion.STATE_COLLAPSED
 import com.example.myBehavior.view.LeftSheetBehavior.Companion.STATE_EXPANDED
+import com.example.myBehavior.view.LeftSheetBehavior.Companion.STATE_HALF_EXPANDED
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 
 
@@ -35,6 +36,8 @@ class MainActivity : AppCompatActivity() {
             bi.setState(STATE_COLLAPSED)
         }
 
-
+       binding.button2.setOnClickListener {
+           bi.setState(STATE_HALF_EXPANDED)
+       }
     }
 }

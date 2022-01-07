@@ -1253,12 +1253,7 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
 
     //<editor-fold desc="核心代码2" >
 
-    //<editor-fold desc="计算半扩展偏移" >
-    private fun calculateHalfExpandedOffset() {
-        // todo 高改宽
-        halfExpandedOffset = (parentWidth * (1 - halfExpandedRatio)).toInt()
-    }
-    //</editor-fold>
+
 
     /**
      * 计算折叠偏移
@@ -1450,6 +1445,12 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
 
     //</editor-fold>
 
+    //<editor-fold desc="计算半扩展偏移" >
+    private fun calculateHalfExpandedOffset() {
+        // todo 高改宽
+        halfExpandedOffset = (parentWidth * (1 - halfExpandedRatio)).toInt().negate()
+    }
+    //</editor-fold>
 
   //<editor-fold desc="开始稳定动画" >
     fun startSettlingAnimation(child: View, state: Int, top: Int, settleFromViewDragHelper: Boolean) {
@@ -1580,14 +1581,14 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
      * 解决状态
      */
     fun settleToState(child: View, state: Int) {
-        Log.v(TAG, lll())
+
         var state = state
         var top: Int
         if (state == STATE_COLLAPSED) {
             top = collapsedOffset
         } else if (state == STATE_HALF_EXPANDED) {
             top = halfExpandedOffset
-            if (fitToContents && top <= fitToContentsOffset) {
+            if (fitToContents && top >= fitToContentsOffset) {//todo 小于改大于
                 // 如果我们滚动超过内容的高度，则跳到展开状态。
                 state = STATE_EXPANDED
                 top = fitToContentsOffset
@@ -1600,6 +1601,7 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
         } else {
             throw IllegalArgumentException("非法状态论证: $state")
         }
+        Log.v(TAG, "解决状态 state  $state  halfExpandedOffset : $halfExpandedOffset  top : $top  fitToContentsOffset : $fitToContentsOffset "+lll())
         startSettlingAnimation(child, state, top, false)
     }
 
