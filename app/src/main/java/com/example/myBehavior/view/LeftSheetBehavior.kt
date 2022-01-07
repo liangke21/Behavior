@@ -1450,6 +1450,41 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
 
     //</editor-fold>
 
+
+  //<editor-fold desc="开始稳定动画" >
+    fun startSettlingAnimation(child: View, state: Int, top: Int, settleFromViewDragHelper: Boolean) {
+        Log.v(TAG, lll())
+
+        val startedSettling = (viewDragHelper != null
+                //TODO  超级核心代码 实现 自动上下或则左右展开
+                //if (settleFromViewDragHelper) viewDragHelper!!.settleCapturedViewAt(child.left, top) else viewDragHelper!!.smoothSlideViewTo(child, child.left, top))
+                && if (settleFromViewDragHelper) viewDragHelper!!.settleCapturedViewAt(child.top, top) else viewDragHelper!!.smoothSlideViewTo(child,  top,child.top))
+        Log.d(TAG, " smoothSlideViewTo  child.top : ${child.top}  top : $top  startedSettling : $startedSettling")
+        if (startedSettling) {
+            setStateInternal(STATE_SETTLING)
+            // STATE_SETTLING 不会对材质形状进行动画处理，因此请在此处使用目标状态进行动画处理。
+
+            updateDrawableForTargetState(state)//TODO 核心代码1
+
+            if (settleRunnable == null) {
+                // 如果尚未实例化单例 SettleRunnable 实例，请创建它。
+                settleRunnable = SettleRunnable(child, state)
+            }
+            // 如果 SettleRunnable 尚未发布，请将其发布为正确的状态。
+            if (!settleRunnable!!.isPosted) {
+                settleRunnable!!.targetState = state
+                ViewCompat.postOnAnimation(child, settleRunnable)
+                settleRunnable!!.isPosted = true
+            } else {
+                // 否则，如果已经发布，只需更新目标状态。
+                settleRunnable!!.targetState = state
+            }
+        } else {
+            setStateInternal(state)
+        }
+    }
+    //</editor-fold>
+
     //<editor-fold desc="公共" >
 
 
@@ -1568,39 +1603,6 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
         startSettlingAnimation(child, state, top, false)
     }
 
-    /**
-     * 开始稳定定动画
-     */
-    fun startSettlingAnimation(child: View, state: Int, top: Int, settleFromViewDragHelper: Boolean) {
-        Log.v(TAG, lll())
-        val startedSettling = (viewDragHelper != null
-                //TODO  超级核心代码 实现 自动上下或则左右展开
-                //if (settleFromViewDragHelper) viewDragHelper!!.settleCapturedViewAt(child.left, top) else viewDragHelper!!.smoothSlideViewTo(child, child.left, top))
-                && if (settleFromViewDragHelper) viewDragHelper!!.settleCapturedViewAt(child.top, top) else viewDragHelper!!.smoothSlideViewTo(child, child.top, top))
-        Log.v(TAG, "startSettlingAnimation startedSettling : $startedSettling")
-        if (startedSettling) {
-            setStateInternal(STATE_SETTLING)
-            // STATE_SETTLING 不会对材质形状进行动画处理，因此请在此处使用目标状态进行动画处理。
-
-            updateDrawableForTargetState(state)//TODO 核心代码1
-
-            if (settleRunnable == null) {
-                // 如果尚未实例化单例 SettleRunnable 实例，请创建它。
-                settleRunnable = SettleRunnable(child, state)
-            }
-            // 如果 SettleRunnable 尚未发布，请将其发布为正确的状态。
-            if (!settleRunnable!!.isPosted) {
-                settleRunnable!!.targetState = state
-                ViewCompat.postOnAnimation(child, settleRunnable)
-                settleRunnable!!.isPosted = true
-            } else {
-                // 否则，如果已经发布，只需更新目标状态。
-                settleRunnable!!.targetState = state
-            }
-        } else {
-            setStateInternal(state)
-        }
-    }
 
     /**
      * 设置内部状态
