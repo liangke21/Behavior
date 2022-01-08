@@ -28,10 +28,10 @@ class MainActivity : AppCompatActivity() {
         //val bi = MyButtomSheetBehavior.from(findViewById(R.id.sheet))
         findViewById<Button>(R.id.button).setOnClickListener {
 
-            bi.setState(STATE_EXPANDED)
-
             supportFragmentManager.beginTransaction().replace(R.id.fl2,BlankFragment()).commit()
             supportFragmentManager.executePendingTransactions()
+            bi.setState(STATE_EXPANDED)
+
 
         }
 

@@ -478,8 +478,8 @@ import kotlin.math.abs
         }
         //<editor-fold desc="更改偏移量核心代码1" >
 
-        //TODO 顶部换右边
-        val savedTop = child.right
+        // TODO 为更改
+        val savedTop = child.top
         // 首先让父级布局
         parent.onLayoutChild(child, layoutDirection)
         // 偏移底部纸张
@@ -493,6 +493,7 @@ import kotlin.math.abs
 
         calculateHalfExpandedOffset()
         calculateCollapsedOffset()
+        //初始化方向
         // TODO 顶部和底部换左部和右部
         if (state == STATE_EXPANDED) {
             ViewCompat.offsetLeftAndRight(child, getExpandedOffset())
@@ -504,8 +505,8 @@ import kotlin.math.abs
         } else if (state == STATE_COLLAPSED) {
             ViewCompat.offsetLeftAndRight(child, collapsedOffset)
         } else if (state == STATE_DRAGGING || state == STATE_SETTLING) {
-            //TODO 顶部换右边
-            ViewCompat.offsetLeftAndRight(child, savedTop - child.right)
+            // TODO 为更改
+            ViewCompat.offsetLeftAndRight(child, savedTop - child.top)
         }
 
         //</editor-fold>
@@ -606,7 +607,7 @@ import kotlin.math.abs
     override fun onStartNestedScroll(coordinatorLayout: CoordinatorLayout, child: V, directTargetChild: View, target: View, axes: Int, type: Int): Boolean {
         lastNestedScrollDy = 0
         nestedScrolled = false
-        return axes and ViewCompat.SCROLL_AXIS_HORIZONTAL != 0 // todo 垂直改为垂直
+        return axes and ViewCompat.SCROLL_AXIS_VERTICAL != 0 // todo 垂直改为垂直
     }
 
     override fun onNestedPreScroll(coordinatorLayout: CoordinatorLayout, child: V, target: View, dx: Int, dy: Int, consumed: IntArray, type: Int) {
@@ -619,15 +620,15 @@ import kotlin.math.abs
         if (target !== scrollingChild) {
             return
         }
-        // TODO 顶部改右部
-        val currentTop = child.left
+        // TODO 为更改
+        val currentTop = child.top
         val newTop = currentTop - dy
         Log.d(TAG,"onNestedPreScroll  dx $dx  dy  $dy")
         if (dy > 0) { // Upward
             if (newTop < getExpandedOffset()) {
                 consumed[1] = currentTop - getExpandedOffset()
-                //TODO 顶部和底部 改 左部和右部
-                ViewCompat.offsetLeftAndRight(child, -consumed[1])
+                // TODO 为更改
+                ViewCompat.offsetTopAndBottom(child, -consumed[1])
                 setStateInternal(STATE_EXPANDED)
             } else {
                 if (!draggable) {
@@ -635,8 +636,8 @@ import kotlin.math.abs
                     return
                 }
                 consumed[1] = dy
-                //TODO 顶部和底部 改 左部和右部
-                ViewCompat.offsetLeftAndRight(child, -dy)
+                // TODO 为更改
+                ViewCompat.offsetTopAndBottom(child, -dy)
                 setStateInternal(STATE_DRAGGING)
             }
         } else if (dy < 0) { // Downward
@@ -647,26 +648,26 @@ import kotlin.math.abs
                         return
                     }
                     consumed[1] = dy
-                    //TODO 顶部和底部 改 左部和右部
-                    ViewCompat.offsetLeftAndRight(child, -dy)
+                    // TODO 为更改
+                    ViewCompat.offsetTopAndBottom(child, -dy)
                     setStateInternal(STATE_DRAGGING)
                 } else {
                     consumed[1] = currentTop - collapsedOffset
-                    ViewCompat.offsetLeftAndRight(child, -consumed[1])
+                    ViewCompat.offsetTopAndBottom(child, -consumed[1])
                     setStateInternal(STATE_COLLAPSED)
                 }
             }
         }
-        //todo 顶部换右
-        dispatchOnSlide(child.left)
+        // TODO 为更改
+        dispatchOnSlide(child.top)
         lastNestedScrollDy = dy
         nestedScrolled = true
     }
 
     override fun onStopNestedScroll(coordinatorLayout: CoordinatorLayout, child: V, target: View, type: Int) {
         Log.v(TAG, lll())
-        // TODO 顶部换右
-        if (child.right == getExpandedOffset()) {
+        // TODO 为更改
+        if (child.top == getExpandedOffset()) {
             setStateInternal(STATE_EXPANDED)
             return
         }
@@ -680,8 +681,8 @@ import kotlin.math.abs
                 top = fitToContentsOffset
                 targetState = STATE_EXPANDED
             } else {
-                // TODO 顶部换右
-                val currentTop = child.right
+                // TODO 为更改
+                val currentTop = child.top
                 if (currentTop > halfExpandedOffset) {
                     top = halfExpandedOffset
                     targetState = STATE_HALF_EXPANDED
@@ -692,12 +693,12 @@ import kotlin.math.abs
             }
         } else if (hideable && shouldHide(child, getYVelocity())) {
 
-            // todo 高改宽
-            top = parentWidth
+            // TODO 为更改
+            top = parentHeight
             targetState = STATE_HIDDEN
         } else if (lastNestedScrollDy == 0) {
-            // TODO 顶部换右
-            val currentTop = child.right
+            // TODO 为更改
+            val currentTop = child.top
             if (fitToContents) {
                 if (abs(currentTop - fitToContentsOffset) < abs(currentTop - collapsedOffset)) {
                     top = fitToContentsOffset
@@ -731,8 +732,8 @@ import kotlin.math.abs
                 targetState = STATE_COLLAPSED
             } else {
                 // Settle to nearest height.
-                // TODO 顶部换右
-                val currentTop = child.right
+                // TODO 为更改
+                val currentTop = child.top
                 if (abs(currentTop - halfExpandedOffset) < abs(currentTop - collapsedOffset)) {
                     top = halfExpandedOffset
                     targetState = STATE_HALF_EXPANDED
@@ -977,8 +978,8 @@ import kotlin.math.abs
         override fun onViewPositionChanged(
             changedView: View, left: Int, top: Int, dx: Int, dy: Int
         ) {
-            // TODO 顶部换左边
-            dispatchOnSlide(left)
+            // TODO 为更改
+            dispatchOnSlide(top)
         }
 
         override fun onViewDragStateChanged(state: Int) {
@@ -989,8 +990,8 @@ import kotlin.math.abs
 
         private fun releasedLow(child: View): Boolean {
             // 需要至少到左部的一半。
-            // todo 高改宽  // todo 顶部改左
-            return child.left > (parentWidth + getExpandedOffset()) / 2
+            // TODO 为更改
+            return child.top > (parentHeight + getExpandedOffset()) / 2
         }
 
         override fun onViewReleased(releasedChild: View, xvel: Float, yvel: Float) {
@@ -1006,8 +1007,8 @@ import kotlin.math.abs
                 if (fitToContents) {
                     top = fitToContentsOffset
                     targetState = STATE_EXPANDED
-                } else {//TODO 顶部换右边
-                    val currentTop = releasedChild.left
+                } else {//TODO 为更改
+                    val currentTop = releasedChild.top
                     if (currentTop > halfExpandedOffset) {
                         top = halfExpandedOffset
                         targetState = STATE_HALF_EXPANDED
@@ -1022,16 +1023,16 @@ import kotlin.math.abs
                 // 否则会进入最接近的扩展状态。
                 if (abs(yvel) < abs(xvel) && abs(xvel) > SIGNIFICANT_VEL_THRESHOLD//abs(yvel) < abs(yvel) && yvel > SIGNIFICANT_VEL_THRESHOLD
                     || releasedLow(releasedChild)
-                ) {// todo 高改宽
-                    top = -parentWidth // 正数为右负数为左
+                ) {// todo 高改宽 正数为右负数为左
+                    top = -parentWidth
                     targetState = STATE_HIDDEN
                 } else if (fitToContents) {
                     top = fitToContentsOffset
                     targetState = STATE_EXPANDED
-                    //TODO 顶部换右边
-                } else if (abs(releasedChild.left - expandedOffsetL)
-                    //TODO 顶部换右边
-                    < abs(releasedChild.left - halfExpandedOffset)
+                    //TODO 为更改
+                } else if (abs(releasedChild.top - expandedOffsetL)
+                    //TODO 为更改
+                    < abs(releasedChild.top - halfExpandedOffset)
                 ) {
                     top = expandedOffsetL
                     targetState = STATE_EXPANDED
@@ -1043,7 +1044,7 @@ import kotlin.math.abs
                 Log.v(TAG,"3  yvel  $yvel   xvel $xvel "+lll())
                 // 如果 Y 速度为 0 或滑动大部分是水平的，由 X 速度指示
                 // 大于 Y 速度，稳定到最接近的正确高度。
-                //TODO 顶部换右边
+                //TODO 为更改
                 val currentTop = releasedChild.top
                 if (fitToContents) {
                     if (abs(currentTop - fitToContentsOffset)
@@ -1083,7 +1084,7 @@ import kotlin.math.abs
                     targetState = STATE_COLLAPSED
                 } else {
                     // 调整到最近的正确高度。
-                    //TODO 顶部换右边
+                    //TODO 未更改
                     val currentTop = releasedChild.top
                     if (abs(currentTop - halfExpandedOffset)
                         < abs(currentTop - collapsedOffset)
@@ -1105,13 +1106,13 @@ import kotlin.math.abs
 
         override fun clampViewPositionHorizontal(child: View, left: Int, dx: Int): Int {
 
-            Log.d(TAG, " 右滑 $left  getExpandedOffset  ${getExpandedOffset()}  hideable : $hideable   parentWidth :  $parentWidth   collapsedOffset : $collapsedOffset    MathUtils.clamp  ${MathUtils.clamp(   //todo 高改宽
+            Log.d(TAG, " 右滑 $left  getExpandedOffset  ${getExpandedOffset()}  hideable : $hideable   parentWidth :  $parentWidth   collapsedOffset : $collapsedOffset    MathUtils.clamp  ${MathUtils.clamp(   
                 left, getExpandedOffset(), if (hideable) parentWidth else collapsedOffset
             )}")
-            Log.d(TAG, " 左滑 $left  getExpandedOffset  ${getExpandedOffset()}  hideable : $hideable   parentWidth :  $parentWidth   collapsedOffset : $collapsedOffset    MathUtils.clamp  ${MathUtils.clamp(   //todo 高改宽
+            Log.d(TAG, " 左滑 $left  getExpandedOffset  ${getExpandedOffset()}  hideable : $hideable   parentWidth :  $parentWidth   collapsedOffset : $collapsedOffset    MathUtils.clamp  ${MathUtils.clamp(   
                 left, if (hideable) -parentWidth else collapsedOffset, getExpandedOffset()
             )}")
-            return MathUtils.clamp(   //todo 高改宽
+            return MathUtils.clamp(   //todo 高改负宽
                 left, if (hideable) -parentWidth else collapsedOffset, getExpandedOffset()
             )
         }
@@ -1199,8 +1200,8 @@ import kotlin.math.abs
         if (VERSION.SDK_INT >= VERSION_CODES.Q && !isGestureInsetLeftIgnored() && !peekHeightAuto) {
             ViewUtils.doOnApplyWindowInsets(child, object : ViewUtils.OnApplyWindowInsetsListener {
                 override fun onApplyWindowInsets(view: View, insets: WindowInsetsCompat, initialPadding: ViewUtils.RelativePadding): WindowInsetsCompat {
-                    //TODO 左换底部
-                    gestureInsetLeft = insets.mandatorySystemGestureInsets.left
+                    //TODO 未更改
+                    gestureInsetLeft = insets.mandatorySystemGestureInsets.bottom
                     updatePeekHeight( /* animate= */false)
                     return insets
                 }
@@ -1439,6 +1440,7 @@ import kotlin.math.abs
                 top = fitToContentsOffset
             }
         } else if (mState == STATE_EXPANDED) {
+            Log.v(TAG,"settleToState  STATE_EXPANDED  ${getExpandedOffset()} ")
             top = getExpandedOffset()
         } else if (hideable && mState == STATE_HIDDEN) {
             //todo 高改宽
@@ -1454,7 +1456,7 @@ import kotlin.math.abs
 
     //<editor-fold desc="计算半扩展偏移" >
     private fun calculateHalfExpandedOffset() {
-        // todo 高改宽
+        // todo 高改宽  改负数
         halfExpandedOffset = (parentWidth * (1 - halfExpandedRatio)).toInt().negate()
     }
     //</editor-fold>
@@ -1464,7 +1466,7 @@ import kotlin.math.abs
         Log.v(TAG, lll())
 
         val startedSettling = (viewDragHelper != null
-                //TODO  超级核心代码 实现 自动上下或则左右展开
+                //TODO  核心代码 实现 自动上下或则左右展开
                 //if (settleFromViewDragHelper) viewDragHelper!!.settleCapturedViewAt(child.left, top) else viewDragHelper!!.smoothSlideViewTo(child, child.left, top))
                 && if (settleFromViewDragHelper) viewDragHelper!!.settleCapturedViewAt( top,child.top) else viewDragHelper!!.smoothSlideViewTo(child,  top,child.top))
         Log.d(TAG, " smoothSlideViewTo  child.top : ${child.top}  top : $top  startedSettling : $startedSettling")
@@ -1472,7 +1474,7 @@ import kotlin.math.abs
             setStateInternal(STATE_SETTLING)
             // STATE_SETTLING 不会对材质形状进行动画处理，因此请在此处使用目标状态进行动画处理。
 
-            updateDrawableForTargetState(state)//TODO 核心代码1
+            updateDrawableForTargetState(state)
 
             if (settleRunnable == null) {
                 // 如果尚未实例化单例 SettleRunnable 实例，请创建它。
@@ -1524,7 +1526,7 @@ import kotlin.math.abs
     fun shouldHide(child: View, yvel: Float): Boolean {
         if (skipCollapsed) {
             return true
-        }//TODO 顶部换右边
+        }//TODO 顶部换左边
         Log.d(TAG, "onViewReleased  child.right : ${child.left}  collapsedOffset : $collapsedOffset")
         if (child.left.negate() < collapsedOffset.negate()) { //todo 负数变正数
             // 它不应该隐藏，而是崩溃。
@@ -1579,7 +1581,6 @@ import kotlin.math.abs
     /**
      * 返回此左工作表是否应根据系统手势区域调整其位置。
      */
-    //TODO 底部换左
      fun isGestureInsetLeftIgnored(): Boolean {
         return gestureInsetLeftIgnored
     }
