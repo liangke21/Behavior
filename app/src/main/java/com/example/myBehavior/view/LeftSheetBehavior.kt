@@ -622,6 +622,7 @@ import kotlin.math.abs
         // TODO 顶部改右部
         val currentTop = child.left
         val newTop = currentTop - dy
+        Log.d(TAG,"onNestedPreScroll  dx $dx  dy  $dy")
         if (dy > 0) { // Upward
             if (newTop < getExpandedOffset()) {
                 consumed[1] = currentTop - getExpandedOffset()
@@ -1015,14 +1016,14 @@ import kotlin.math.abs
                         targetState = STATE_EXPANDED
                     }
                 }
-            } else if (hideable && shouldHide(releasedChild, abs(xvel))) {
+            } else if (hideable && shouldHide(releasedChild, xvel)) {
                 Log.d(TAG, " 1  ${hideable && shouldHide(releasedChild, abs(xvel))}  xvel : ${abs(xvel)} "+lll())
                 // 如果视图被释放得较低或者是显着的垂直滑动，则隐藏
                 // 否则会进入最接近的扩展状态。
-                if (abs(xvel) < abs(yvel) && yvel > SIGNIFICANT_VEL_THRESHOLD
+                if (abs(yvel) < abs(xvel) && abs(xvel) > SIGNIFICANT_VEL_THRESHOLD//abs(yvel) < abs(yvel) && yvel > SIGNIFICANT_VEL_THRESHOLD
                     || releasedLow(releasedChild)
                 ) {// todo 高改宽
-                    top = parentWidth
+                    top = -parentWidth // 正数为右负数为左
                     targetState = STATE_HIDDEN
                 } else if (fitToContents) {
                     top = fitToContentsOffset
@@ -1038,7 +1039,8 @@ import kotlin.math.abs
                     top = halfExpandedOffset
                     targetState = STATE_HALF_EXPANDED
                 }
-            } else if (-yvel == 0f || xvel> yvel) {// todo (yvel == 0f || Math.abs(xvel) > Math.abs(yvel))
+            } else if (xvel == 0f || xvel> yvel) {// todo (yvel == 0f || Math.abs(xvel) > Math.abs(yvel))
+                Log.v(TAG,"3  yvel  $yvel   xvel $xvel "+lll())
                 // 如果 Y 速度为 0 或滑动大部分是水平的，由 X 速度指示
                 // 大于 Y 速度，稳定到最接近的正确高度。
                 //TODO 顶部换右边
@@ -1075,12 +1077,12 @@ import kotlin.math.abs
                     }
                 }
             } else { // 向左
-                Log.d(TAG,"3 "+lll())
+                Log.d(TAG,"4 "+lll())
                 if (fitToContents) {
                     top = collapsedOffset
                     targetState = STATE_COLLAPSED
                 } else {
-                    // Settle to the nearest correct height.
+                    // 调整到最近的正确高度。
                     //TODO 顶部换右边
                     val currentTop = releasedChild.top
                     if (abs(currentTop - halfExpandedOffset)
