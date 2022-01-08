@@ -2,7 +2,6 @@ package com.example.myBehavior.view
 
 
 import android.animation.ValueAnimator
-import android.animation.ValueAnimator.AnimatorUpdateListener
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.ColorStateList
@@ -33,10 +32,11 @@ import com.example.myBehavior.koltin.negate
 import com.google.android.material.resources.MaterialResources
 import com.google.android.material.shape.MaterialShapeDrawable
 import com.google.android.material.shape.ShapeAppearanceModel
-import java.lang.Math.abs
 import java.lang.ref.WeakReference
+import kotlin.math.abs
 
-open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
+@SuppressLint("RestrictedApi")
+ class LeftSheetBehavior<V : View> constructor(context: Context, attrs: AttributeSet?) : CoordinatorLayout.Behavior<V>(context, attrs) {
 
 
     /** 用于监视有关左部工作表的事件的回调。  */
@@ -116,75 +116,69 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
     private var ignoreEvents = false //忽略事假
     private var shapeAppearanceModelDefault: ShapeAppearanceModel? = null //用于底片的默认形状外观
     var activePointerId = 0 //活动指针 ID
-    private val DEF_STYLE_RES = R.style.Widget_Design_BottomSheet_Modal //DEF 风格资源
+
     //</editor-fold>
 
     //<editor-fold desc="构造函数" >
 
-
-    constructor() : super()
-
-    @SuppressLint("RestrictedApi")
-    constructor(context: Context, attrs: AttributeSet?) : super(context, attrs) {
-
-        Log.d(TAG, "执行构造函数")
-        peekHeightGestureInsetBuffer = context.resources.getDimensionPixelSize(R.dimen.mtrl_min_touch_target_size)
-        val a = context.obtainStyledAttributes(attrs, R.styleable.BottomSheetBehavior_Layout)
-        shapeThemingEnabled = a.hasValue(R.styleable.BottomSheetBehavior_Layout_shapeAppearance)
-        val hasBackgroundTint = a.hasValue(R.styleable.BottomSheetBehavior_Layout_backgroundTint)
-        if (hasBackgroundTint) {
-            val bottomSheetColor = MaterialResources.getColorStateList(
-                context, a, R.styleable.BottomSheetBehavior_Layout_backgroundTint
-            )
-            createMaterialShapeDrawable(context, attrs!!, hasBackgroundTint, bottomSheetColor)
-        } else {
-            createMaterialShapeDrawable(context, attrs!!, hasBackgroundTint)
-        }
-        createShapeValueAnimator()
-        if (VERSION.SDK_INT >= VERSION_CODES.LOLLIPOP) {
-            elevation = a.getDimension(R.styleable.BottomSheetBehavior_Layout_android_elevation, -1f)
-        }
-        var value = a.peekValue(R.styleable.BottomSheetBehavior_Layout_behavior_peekHeight)
-        if (value != null && value.data == PEEK_HEIGHT_AUTO) {
-            setPeekHeight(value.data)
-        } else {
-            setPeekHeight(
-                a.getDimensionPixelSize(
-                    R.styleable.BottomSheetBehavior_Layout_behavior_peekHeight, PEEK_HEIGHT_AUTO
-                )
-            )
-        }
-        setHideable(a.getBoolean(R.styleable.BottomSheetBehavior_Layout_behavior_hideable, false))
-        setGestureInsetBottomIgnored(
-            a.getBoolean(R.styleable.BottomSheetBehavior_Layout_gestureInsetBottomIgnored, false)
-        )
-        setFitToContents(
-            a.getBoolean(R.styleable.BottomSheetBehavior_Layout_behavior_fitToContents, true)
-        )
-        setSkipCollapsed(
-            a.getBoolean(R.styleable.BottomSheetBehavior_Layout_behavior_skipCollapsed, false)
-        )
-        setDraggable(a.getBoolean(R.styleable.BottomSheetBehavior_Layout_behavior_draggable, true))
-        setSaveFlags(a.getInt(R.styleable.BottomSheetBehavior_Layout_behavior_saveFlags, SAVE_NONE))
-        setHalfExpandedRatio(
-            a.getFloat(R.styleable.BottomSheetBehavior_Layout_behavior_halfExpandedRatio, 0.5f)
-        )
-        value = a.peekValue(R.styleable.BottomSheetBehavior_Layout_behavior_expandedOffset)
-        if (value != null && value.type == TypedValue.TYPE_FIRST_INT) {
-            setExpandedOffset(value.data)
-        } else {
-            setExpandedOffset(
-                a.getDimensionPixelOffset(
-                    R.styleable.BottomSheetBehavior_Layout_behavior_expandedOffset, 0
-                )
-            )
-        }
-        a.recycle()
-        val configuration = ViewConfiguration.get(context)
-        maximumVelocity = configuration.scaledMaximumFlingVelocity.toFloat()
-    }
-
-    //</editor-fold>
+     init {
+         Log.d(TAG, "执行构造函数")
+         peekHeightGestureInsetBuffer = context.resources.getDimensionPixelSize(R.dimen.mtrl_min_touch_target_size)
+         val a = context.obtainStyledAttributes(attrs, R.styleable.BottomSheetBehavior_Layout)
+         shapeThemingEnabled = a.hasValue(R.styleable.BottomSheetBehavior_Layout_shapeAppearance)
+         val hasBackgroundTint = a.hasValue(R.styleable.BottomSheetBehavior_Layout_backgroundTint)
+         if (hasBackgroundTint) {
+             val bottomSheetColor = MaterialResources.getColorStateList(
+                 context, a, R.styleable.BottomSheetBehavior_Layout_backgroundTint
+             )
+             createMaterialShapeDrawable(context, attrs!!, hasBackgroundTint, bottomSheetColor)
+         } else {
+             createMaterialShapeDrawable(context, attrs!!, hasBackgroundTint)
+         }
+         createShapeValueAnimator()
+         if (VERSION.SDK_INT >= VERSION_CODES.LOLLIPOP) {
+             elevation = a.getDimension(R.styleable.BottomSheetBehavior_Layout_android_elevation, -1f)
+         }
+         var value = a.peekValue(R.styleable.BottomSheetBehavior_Layout_behavior_peekHeight)
+         if (value != null && value.data == PEEK_HEIGHT_AUTO) {
+             setPeekHeight(value.data)
+         } else {
+             setPeekHeight(
+                 a.getDimensionPixelSize(
+                     R.styleable.BottomSheetBehavior_Layout_behavior_peekHeight, PEEK_HEIGHT_AUTO
+                 )
+             )
+         }
+         setHideable(a.getBoolean(R.styleable.BottomSheetBehavior_Layout_behavior_hideable, false))
+         setGestureInsetBottomIgnored(
+             a.getBoolean(R.styleable.BottomSheetBehavior_Layout_gestureInsetBottomIgnored, false)
+         )
+         setFitToContents(
+             a.getBoolean(R.styleable.BottomSheetBehavior_Layout_behavior_fitToContents, true)
+         )
+         setSkipCollapsed(
+             a.getBoolean(R.styleable.BottomSheetBehavior_Layout_behavior_skipCollapsed, false)
+         )
+         setDraggable(a.getBoolean(R.styleable.BottomSheetBehavior_Layout_behavior_draggable, true))
+         setSaveFlags(a.getInt(R.styleable.BottomSheetBehavior_Layout_behavior_saveFlags, SAVE_NONE))
+         setHalfExpandedRatio(
+             a.getFloat(R.styleable.BottomSheetBehavior_Layout_behavior_halfExpandedRatio, 0.5f)
+         )
+         value = a.peekValue(R.styleable.BottomSheetBehavior_Layout_behavior_expandedOffset)
+         if (value != null && value.type == TypedValue.TYPE_FIRST_INT) {
+             setExpandedOffset(value.data)
+         } else {
+             setExpandedOffset(
+                 a.getDimensionPixelOffset(
+                     R.styleable.BottomSheetBehavior_Layout_behavior_expandedOffset, 0
+                 )
+             )
+         }
+         a.recycle()
+         val configuration = ViewConfiguration.get(context)
+         maximumVelocity = configuration.scaledMaximumFlingVelocity.toFloat()
+     }
+     //</editor-fold>
 
 
     //<editor-fold desc="构造方法的延伸" >
@@ -199,7 +193,7 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
      * @attr ref
      * com.google.android.material.R.styleable#BottomSheetBehavior_Layout_behavior_expandedOffset
      */
-    open fun setExpandedOffset(offset: Int) {
+     fun setExpandedOffset(offset: Int) {
         require(offset >= 0) { "offset must be greater than or equal to 0" }
         this.expandedOffsetL = offset
     }
@@ -234,7 +228,7 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
      * @see .getSaveFlags
      * @attr ref com.google.android.material.R.styleable#BottomSheetBehavior_Layout_behavior_saveFlags
      */
-    open fun setSaveFlags(@SaveFlags flags: Int) {
+     fun setSaveFlags(@SaveFlags flags: Int) {
         this.saveFlags = flags
     }
 
@@ -246,7 +240,7 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
      * @param draggable `false` to prevent dragging the sheet to collapse and expand
      * @attr ref com.google.android.material.R.styleable#BottomSheetBehavior_Layout_behavior_draggable
      */
-    open fun setDraggable(draggable: Boolean) {
+     fun setDraggable(draggable: Boolean) {
         this.draggable = draggable
     }
 
@@ -259,7 +253,7 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
      * @attr ref
      * com.google.android.material.R.styleable#BottomSheetBehavior_Layout_behavior_skipCollapsed
      */
-    open fun setSkipCollapsed(skipCollapsed: Boolean) {
+     fun setSkipCollapsed(skipCollapsed: Boolean) {
         this.skipCollapsed = skipCollapsed
     }
 
@@ -271,7 +265,7 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
      *
      * @param fitToContents whether or not to fit the expanded sheet to its contents.
      */
-    open fun setFitToContents(fitToContents: Boolean) {
+   fun setFitToContents(fitToContents: Boolean) {
         if (this.fitToContents == fitToContents) {
             return
         }
@@ -298,7 +292,7 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
      * a gesture conflict), gesture navigation is enabled, and this `ignoreGestureInsetBottom`
      * flag is false.
      */
-    open fun setGestureInsetBottomIgnored(gestureInsetBottomIgnored: Boolean) {
+    fun setGestureInsetBottomIgnored(gestureInsetBottomIgnored: Boolean) {
         this.gestureInsetLeftIgnored = gestureInsetBottomIgnored
     }
 
@@ -309,8 +303,9 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
      * @param hideable `true` to make this bottom sheet hideable.
      * @attr ref com.google.android.material.R.styleable#BottomSheetBehavior_Layout_behavior_hideable
      */
+
     @JvmName("setHideable1")
-    fun setHideable(hideable: Boolean) {
+     fun setHideable(hideable: Boolean) {
         if (this.hideable != hideable) {
             this.hideable = hideable
             if (!hideable && state == STATE_HIDDEN) {
@@ -329,7 +324,7 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
      * @attr ref
      * com.google.android.material.R.styleable#BottomSheetBehavior_Layout_behavior_peekHeight
      */
-    fun setPeekHeight(peekHeight: Int) {
+     fun setPeekHeight(peekHeight: Int) {
         setPeekHeight(peekHeight, false)
     }
 
@@ -353,11 +348,11 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
             }
         } else if (peekHeightAuto || this.peekHeight != peekHeight) {
             peekHeightAuto = false
-            this.peekHeight = Math.max(0, peekHeight)
+            this.peekHeight = 0.coerceAtLeast(peekHeight)
             layout = true
         }
-        // If sheet is already laid out, recalculate the collapsed offset based on new setting.
-        // Otherwise, let onLayoutChild handle this later.
+        // 如果工作表已经布置好，请根据新设置重新计算折叠偏移。
+        // 否则，让 onLayoutChild 稍后处理。
         if (layout) {
             updatePeekHeight(animate)
         }
@@ -392,19 +387,16 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
         }
     }
 
-
     private fun createShapeValueAnimator() {
         interpolatorAnimator = ValueAnimator.ofFloat(0f, 1f)
-        interpolatorAnimator?.setDuration(CORNER_ANIMATION_DURATION.toLong())
-        interpolatorAnimator?.addUpdateListener(
-            AnimatorUpdateListener { animation ->
-                val value = animation.animatedValue as Float
-                if (materialShapeDrawable != null) {
-                    materialShapeDrawable!!.interpolation = value
-                }
-            })
+        interpolatorAnimator?.duration = CORNER_ANIMATION_DURATION.toLong()
+        interpolatorAnimator?.addUpdateListener { animation ->
+            val value = animation.animatedValue as Float
+            if (materialShapeDrawable != null) {
+                materialShapeDrawable!!.interpolation = value
+            }
+        }
     }
-
 
     //</editor-fold>
 
@@ -450,7 +442,6 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
     }
 
     override fun onLayoutChild(parent: CoordinatorLayout, child: V, layoutDirection: Int): Boolean {
-        Log.v(TAG, "onLayoutChild")
         if (ViewCompat.getFitsSystemWindows(parent) && !ViewCompat.getFitsSystemWindows(child)) {
             child.fitsSystemWindows = true
         }
@@ -458,7 +449,7 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
         if (viewRef == null) {
             // 具有此行为的第一个布局。
             peekHeightMin = parent.resources.getDimensionPixelSize(R.dimen.design_bottom_sheet_peek_height_min)
-            setSystemGestureInsets(child)//TODO 核心代码
+            setSystemGestureInsets(child)
             viewRef = WeakReference(child)
             //如果启用 shapeTheming，则仅将 MaterialShapeDrawable 设置为背景，否则将
             //默认为 android:background 在样式或布局中声明。
@@ -483,7 +474,6 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
             }
         }
         if (viewDragHelper == null) {
-            //TODO 核心代码3
             viewDragHelper = dragCallback?.let { ViewDragHelper.create(parent, it) }
         }
         //<editor-fold desc="更改偏移量核心代码1" >
@@ -531,7 +521,7 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
             ignoreEvents = true
             return false
         }
-        val action: Int = ev.getActionMasked()
+        val action: Int = ev.actionMasked
         // Record the velocity
         if (action == MotionEvent.ACTION_DOWN) { //按下
             reset()
@@ -551,15 +541,15 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
                 }
             }
             MotionEvent.ACTION_DOWN -> {
-                val initialX = ev.getX().toInt()
-                initialY = ev.getY().toInt()
+                val initialX = ev.x.toInt()
+                initialY = ev.y.toInt()
                 // Only intercept nested scrolling events here if the view not being moved by the
                 // ViewDragHelper.
 
                 if (state != STATE_SETTLING) {
                     val scroll = if (nestedScrollingChildRef != null) nestedScrollingChildRef!!.get() else null
                     if (scroll != null && parent.isPointInChildBounds(scroll, initialX, initialY)) {
-                        activePointerId = ev.getPointerId(ev.getActionIndex())
+                        activePointerId = ev.getPointerId(ev.actionIndex)
                         touchingScrollingChild = true
                     }
                 }
@@ -580,15 +570,15 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
 
         val scroll = if (nestedScrollingChildRef != null) nestedScrollingChildRef!!.get() else null
         return (action == MotionEvent.ACTION_MOVE && scroll != null && !ignoreEvents
-                && state != STATE_DRAGGING && !parent.isPointInChildBounds(scroll, ev.getX() as Int, ev.getY() as Int)
-                && viewDragHelper != null && Math.abs(initialY - ev.getY()) > viewDragHelper!!.touchSlop)
+                && state != STATE_DRAGGING && !parent.isPointInChildBounds(scroll, ev.x.toInt(), ev.y.toInt())
+                && viewDragHelper != null && abs(initialY - ev.y) > viewDragHelper!!.touchSlop)
     }
 
     override fun onTouchEvent(parent: CoordinatorLayout, child: V, ev: MotionEvent): Boolean {
         if (!child.isShown) {
             return false
         }
-        val action: Int = ev.getActionMasked()
+        val action: Int = ev.actionMasked
         if (state == STATE_DRAGGING && action == MotionEvent.ACTION_DOWN) {
             return true
         }
@@ -606,8 +596,8 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
         // The ViewDragHelper tries to capture only the top-most View. We have to explicitly tell it
         // to capture the bottom sheet in case it is not captured and the touch slop is passed.
         if (viewDragHelper != null && action == MotionEvent.ACTION_MOVE && !ignoreEvents) {
-            if (Math.abs(initialY - ev.getY()) > viewDragHelper!!.touchSlop) {
-                viewDragHelper!!.captureChildView(child, ev.getPointerId(ev.getActionIndex()))
+            if (abs(initialY - ev.y) > viewDragHelper!!.touchSlop) {
+                viewDragHelper!!.captureChildView(child, ev.getPointerId(ev.actionIndex))
             }
         }
         return !ignoreEvents
@@ -630,7 +620,7 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
             return
         }
         // TODO 顶部改右部
-        val currentTop = child.right
+        val currentTop = child.left
         val newTop = currentTop - dy
         if (dy > 0) { // Upward
             if (newTop < getExpandedOffset()) {
@@ -667,7 +657,7 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
             }
         }
         //todo 顶部换右
-        dispatchOnSlide(child.right)
+        dispatchOnSlide(child.left)
         lastNestedScrollDy = dy
         nestedScrolled = true
     }
@@ -708,7 +698,7 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
             // TODO 顶部换右
             val currentTop = child.right
             if (fitToContents) {
-                if (Math.abs(currentTop - fitToContentsOffset) < Math.abs(currentTop - collapsedOffset)) {
+                if (abs(currentTop - fitToContentsOffset) < abs(currentTop - collapsedOffset)) {
                     top = fitToContentsOffset
                     targetState = STATE_EXPANDED
                 } else {
@@ -717,7 +707,7 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
                 }
             } else {
                 if (currentTop < halfExpandedOffset) {
-                    if (currentTop < Math.abs(currentTop - collapsedOffset)) {
+                    if (currentTop < abs(currentTop - collapsedOffset)) {
                         top = expandedOffsetL
                         targetState = STATE_EXPANDED
                     } else {
@@ -725,7 +715,7 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
                         targetState = STATE_HALF_EXPANDED
                     }
                 } else {
-                    if (Math.abs(currentTop - halfExpandedOffset) < Math.abs(currentTop - collapsedOffset)) {
+                    if (abs(currentTop - halfExpandedOffset) < abs(currentTop - collapsedOffset)) {
                         top = halfExpandedOffset
                         targetState = STATE_HALF_EXPANDED
                     } else {
@@ -742,7 +732,7 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
                 // Settle to nearest height.
                 // TODO 顶部换右
                 val currentTop = child.right
-                if (Math.abs(currentTop - halfExpandedOffset) < Math.abs(currentTop - collapsedOffset)) {
+                if (abs(currentTop - halfExpandedOffset) < abs(currentTop - collapsedOffset)) {
                     top = halfExpandedOffset
                     targetState = STATE_HALF_EXPANDED
                 } else {
@@ -804,10 +794,10 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
         const val TAG = "LeftSheetBehavior"
 
         /**
-         * A utility function to get the [BottomSheetBehavior] associated with the `view`.
+         * A utility function to get the [LeftSheetBehavior] associated with the `view`.
          *
-         * @param view The [View] with [BottomSheetBehavior].
-         * @return The [BottomSheetBehavior] associated with the `view`.
+         * @param view The [View] with [LeftSheetBehavior].
+         * @return The [LeftSheetBehavior] associated with the `view`.
          */
         @NonNull
         @JvmStatic
@@ -888,6 +878,7 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
         }
 
         //<editor-fold desc="字段" >
+        private const val  DEF_STYLE_RES = R.style.Widget_Design_BottomSheet_Modal //DEF 风格资源
 
         //<editor-fold desc="状态" >
         /** 左侧工作表正在拖动.  */
@@ -964,7 +955,7 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
     /**
      * 拖动回调
      */
-    private val dragCallback: ViewDragHelper.Callback? = object : ViewDragHelper.Callback() {
+    private val dragCallback: ViewDragHelper.Callback = object : ViewDragHelper.Callback() {
         override fun tryCaptureView(child: View, pointerId: Int): Boolean {
             if (state == STATE_DRAGGING) {
                 return false
@@ -998,14 +989,15 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
         private fun releasedLow(child: View): Boolean {
             // 需要至少到左部的一半。
             // todo 高改宽  // todo 顶部改左
-            return child.top > (parentWidth + getExpandedOffset()) / 2
+            return child.left > (parentWidth + getExpandedOffset()) / 2
         }
 
         override fun onViewReleased(releasedChild: View, xvel: Float, yvel: Float) {
             val top: Int
             @State val targetState: Int
             Log.v(TAG,"onViewReleased xvel : $xvel fitToContents : $fitToContents   ${hideable && shouldHide(releasedChild, xvel)}" +
-                    "  ${Math.abs(yvel) < Math.abs(xvel) && xvel > SIGNIFICANT_VEL_THRESHOLD
+                    "  ${
+                        abs(yvel) < abs(xvel) && xvel > SIGNIFICANT_VEL_THRESHOLD
                             || releasedLow(releasedChild)}" +
                     "  fitToContentsOffset  : $fitToContentsOffset" +
                     " "+lll())
@@ -1027,7 +1019,7 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
                 Log.d(TAG, " 1  ${hideable && shouldHide(releasedChild, abs(xvel))}  xvel : ${abs(xvel)} "+lll())
                 // 如果视图被释放得较低或者是显着的垂直滑动，则隐藏
                 // 否则会进入最接近的扩展状态。
-                if (Math.abs(xvel) < Math.abs(yvel) && yvel > SIGNIFICANT_VEL_THRESHOLD
+                if (abs(xvel) < abs(yvel) && yvel > SIGNIFICANT_VEL_THRESHOLD
                     || releasedLow(releasedChild)
                 ) {// todo 高改宽
                     top = parentWidth
@@ -1036,9 +1028,9 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
                     top = fitToContentsOffset
                     targetState = STATE_EXPANDED
                     //TODO 顶部换右边
-                } else if (Math.abs(releasedChild.left - expandedOffsetL)
+                } else if (abs(releasedChild.left - expandedOffsetL)
                     //TODO 顶部换右边
-                    < Math.abs(releasedChild.left - halfExpandedOffset)
+                    < abs(releasedChild.left - halfExpandedOffset)
                 ) {
                     top = expandedOffsetL
                     targetState = STATE_EXPANDED
@@ -1052,8 +1044,8 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
                 //TODO 顶部换右边
                 val currentTop = releasedChild.top
                 if (fitToContents) {
-                    if (Math.abs(currentTop - fitToContentsOffset)
-                        < Math.abs(currentTop - collapsedOffset)
+                    if (abs(currentTop - fitToContentsOffset)
+                        < abs(currentTop - collapsedOffset)
                     ) {
                         top = fitToContentsOffset
                         targetState = STATE_EXPANDED
@@ -1063,7 +1055,7 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
                     }
                 } else {
                     if (currentTop < halfExpandedOffset) {
-                        if (currentTop < Math.abs(currentTop - collapsedOffset)) {
+                        if (currentTop < abs(currentTop - collapsedOffset)) {
                             top = expandedOffsetL
                             targetState = STATE_EXPANDED
                         } else {
@@ -1071,8 +1063,8 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
                             targetState = STATE_HALF_EXPANDED
                         }
                     } else {
-                        if (Math.abs(currentTop - halfExpandedOffset)
-                            < Math.abs(currentTop - collapsedOffset)
+                        if (abs(currentTop - halfExpandedOffset)
+                            < abs(currentTop - collapsedOffset)
                         ) {
                             top = halfExpandedOffset
                             targetState = STATE_HALF_EXPANDED
@@ -1091,8 +1083,8 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
                     // Settle to the nearest correct height.
                     //TODO 顶部换右边
                     val currentTop = releasedChild.top
-                    if (Math.abs(currentTop - halfExpandedOffset)
-                        < Math.abs(currentTop - collapsedOffset)
+                    if (abs(currentTop - halfExpandedOffset)
+                        < abs(currentTop - collapsedOffset)
                     ) {
                         top = halfExpandedOffset
                         targetState = STATE_HALF_EXPANDED
@@ -1105,10 +1097,10 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
             startSettlingAnimation(releasedChild, targetState, top, true)
         }
 
-  /*     override fun clampViewPositionVertical(child: View, top: Int, dy: Int): Int {
+       override fun clampViewPositionVertical(child: View, top: Int, dy: Int): Int {
             return child.top
         }
-*/
+
         override fun clampViewPositionHorizontal(child: View, left: Int, dx: Int): Int {
 
             Log.d(TAG, " 右滑 $left  getExpandedOffset  ${getExpandedOffset()}  hideable : $hideable   parentWidth :  $parentWidth   collapsedOffset : $collapsedOffset    MathUtils.clamp  ${MathUtils.clamp(   //todo 高改宽
@@ -1124,11 +1116,11 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
 
 
         /**
-         * Return the magnitude of a draggable child view's horizontal range of motion in pixels.
-         * This method should return 0 for views that cannot move horizontally.
+         * 返回可拖动子视图的水平运动范围的大小（以像素为单位）。
+         * 对于不能水平移动的视图，此方法应返回 0。
          *
-         * @param child Child view to check
-         * @return range of horizontal motion in pixels
+         * @param child 要检查的子视图
+         * @return 以像素为单位的水平运动范围
          */
         override fun getViewHorizontalDragRange(child: View): Int {
             return if (hideable) {
@@ -1138,8 +1130,6 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
                 collapsedOffset
             }
         }
-
-
     }
     //</editor-fold>
 
@@ -1158,9 +1148,7 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
         }
     }
 
-
     //</editor-fold>
-
 
     //<editor-fold desc="私有方法区" >
 
@@ -1180,10 +1168,6 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
         }
     }
 
-
-    /**
-     * 恢复可选状态
-     */
     private fun restoreOptionalState(@NonNull ss: SavedState) {
         if (this.saveFlags == SAVE_NONE) {
             return
@@ -1214,7 +1198,7 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
             ViewUtils.doOnApplyWindowInsets(child, object : ViewUtils.OnApplyWindowInsetsListener {
                 override fun onApplyWindowInsets(view: View, insets: WindowInsetsCompat, initialPadding: ViewUtils.RelativePadding): WindowInsetsCompat {
                     //TODO 左换底部
-                    gestureInsetLeft = insets.mandatorySystemGestureInsets.bottom
+                    gestureInsetLeft = insets.mandatorySystemGestureInsets.left
                     updatePeekHeight( /* animate= */false)
                     return insets
                 }
@@ -1259,43 +1243,6 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
         }
     }
 
-    //<editor-fold desc="核心代码2" >
-
-
-
-    /**
-     * 计算折叠偏移
-     */
-    private fun calculateCollapsedOffset() {
-        val peek: Int = calculatePeekHeight()
-        if (fitToContents) {
-            // todo 高改宽            //todo 整数转负数
-            collapsedOffset = Math.max(parentWidth - peek, fitToContentsOffset).negate()
-        } else {
-            // todo 高改宽            //todo 整数转负数
-            collapsedOffset = (parentWidth - peek).negate()
-        }
-    }
-
-    /**
-     * 计算窥视高度
-     */
-    private fun calculatePeekHeight(): Int {
-        if (peekHeightAuto) {
-            // 改 val desiredHeight = Math.max(peekHeightMin, parentHeight - parentWidth * 9 / 16)
-            val desiredHeight = Math.max(peekHeightMin, parentWidth - parentHeight * 16 / 9)
-            // todo 高改宽
-            return Math.min(desiredHeight, childWidth)
-        }
-        return if (!gestureInsetLeftIgnored && gestureInsetLeft > 0) {
-            Math.max(peekHeight, gestureInsetLeft + peekHeightGestureInsetBuffer)
-        } else peekHeight
-    }
-
-    //</editor-fold>
-
-
-    //<editor-fold desc="更新重要的辅助功能" >
     private fun updateImportantForAccessibility(expanded: Boolean) {
         Log.v(TAG, lll() + " expanded : $expanded")
         if (viewRef == null) {
@@ -1305,7 +1252,7 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
         val childCount = viewParent.childCount
         if (VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN && expanded) {
             if (importantForAccessibilityMap == null) {
-                importantForAccessibilityMap = HashMap<View, Int>(childCount)
+                importantForAccessibilityMap = HashMap(childCount)
             } else {
                 // 已经保存了子视图的可访问性值的重要。
                 return
@@ -1319,7 +1266,7 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
             if (expanded) {
                 // 保存子视图的可访问性值的重要。
                 if (VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN) {
-                    (importantForAccessibilityMap as HashMap<View, Int>).put(child, child.importantForAccessibility)
+                    (importantForAccessibilityMap as HashMap<View, Int>)[child] = child.importantForAccessibility
 
 
                 }
@@ -1345,9 +1292,7 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
             viewRef!!.get()!!.sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_FOCUSED)
         }
     }
-    //</editor-fold>
 
-    //<editor-fold desc="更新目标状态的可绘制对象" >
     private fun updateDrawableForTargetState(@State state: Int) {
         Log.v(TAG, lll())
         if (state == STATE_SETTLING) {
@@ -1358,7 +1303,7 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
         if (isShapeExpanded != expand) {
             isShapeExpanded = expand
             if (materialShapeDrawable != null && interpolatorAnimator != null) {
-                if (interpolatorAnimator!!.isRunning()) {
+                if (interpolatorAnimator!!.isRunning) {
                     interpolatorAnimator!!.reverse()
                 } else {
                     val to = if (expand) 0f else 1f
@@ -1369,9 +1314,7 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
             }
         }
     }
-    //</editor-fold>
 
-    //<editor-fold desc="更新辅助功能操作" >
     private fun updateAccessibilityActions() {
         Log.v(TAG, lll())
         Log.v(TAG, "_________________________________________")
@@ -1387,7 +1330,7 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
         }
         if (state != STATE_HALF_EXPANDED) {
             expandHalfwayActionId = addAccessibilityActionForState(
-                child, R.string.leftsheet_action_expand_halfway, STATE_HALF_EXPANDED
+                child, R.string.leftsheet_action_expand_halfway
             )
         }
         if (hideable && state != STATE_HIDDEN) {
@@ -1420,28 +1363,22 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
             else -> {}
         }
     }
-    //</editor-fold>
 
-    //<editor-fold desc="为状态添加可访问性操作" >
-    private fun addAccessibilityActionForState(child: V, @StringRes stringResId: Int, state: Int): Int {
+    private fun addAccessibilityActionForState(child: V, @StringRes stringResId: Int): Int {
         return ViewCompat.addAccessibilityAction(
             child,
             child.resources.getString(stringResId),
-            createAccessibilityViewCommandForState(state)
+            createAccessibilityViewCommandForState(STATE_HALF_EXPANDED)
         )
     }
-    //</editor-fold>
 
-    //<editor-fold desc="为状态创建可访问性视图命令" >
     private fun createAccessibilityViewCommandForState(state: Int): AccessibilityViewCommand {
         return AccessibilityViewCommand { _, _ ->
             setState(state)
             true
         }
     }
-    //</editor-fold>
 
-    //<editor-fold desc="替换状态的可访问性操作" >
     private fun replaceAccessibilityActionForState(
         child: V, action: AccessibilityActionCompat, state: Int
     ) {
@@ -1449,34 +1386,66 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
             child, action, null, createAccessibilityViewCommandForState(state)
         )
     }
+
+
     //</editor-fold>
+
+    //<editor-fold desc="折叠偏移" >
+    /**
+     * 计算折叠偏移
+     */
+    private fun calculateCollapsedOffset() {
+        val peek: Int = calculatePeekHeight()
+        if (fitToContents) {
+            // todo 高改宽            //todo 整数转负数
+            collapsedOffset = (parentWidth - peek).coerceAtLeast(fitToContentsOffset).negate()
+        } else {
+            // todo 高改宽            //todo 整数转负数
+            collapsedOffset = (parentWidth - peek).negate()
+        }
+    }
+
+    /**
+     * 计算窥视高度
+     */
+    private fun calculatePeekHeight(): Int {
+        if (peekHeightAuto) {
+            // 改 val desiredHeight = Math.max(peekHeightMin, parentHeight - parentWidth * 9 / 16)
+            val desiredHeight = peekHeightMin.coerceAtLeast(parentWidth - parentHeight * 16 / 9)
+            // todo 高改宽
+            return desiredHeight.coerceAtMost(childWidth)
+        }
+        return if (!gestureInsetLeftIgnored && gestureInsetLeft > 0) {
+            peekHeight.coerceAtLeast(gestureInsetLeft + peekHeightGestureInsetBuffer)
+        } else peekHeight
+    }
 
     //</editor-fold>
 
     //<editor-fold desc="解决状态" >
-    open fun settleToState(child: View, state: Int) {
+    fun settleToState(child: View, state: Int) {
 
-        var state = state
+        var mState = state
         var top: Int
-        if (state == STATE_COLLAPSED) {
+        if (mState == STATE_COLLAPSED) {
             top = collapsedOffset
-        } else if (state == STATE_HALF_EXPANDED) {
+        } else if (mState == STATE_HALF_EXPANDED) {
             top = halfExpandedOffset
             if (fitToContents && top >= fitToContentsOffset) {//todo 小于改大于
                 // 如果我们滚动超过内容的高度，则跳到展开状态。
-                state = STATE_EXPANDED
+                mState = STATE_EXPANDED
                 top = fitToContentsOffset
             }
-        } else if (state == STATE_EXPANDED) {
+        } else if (mState == STATE_EXPANDED) {
             top = getExpandedOffset()
-        } else if (hideable && state == STATE_HIDDEN) {
+        } else if (hideable && mState == STATE_HIDDEN) {
             //todo 高改宽
             top = parentWidth
         } else {
             throw IllegalArgumentException("非法状态论证: $state")
         }
-        Log.v(TAG, "解决状态 state  $state  halfExpandedOffset : $halfExpandedOffset  top : $top  fitToContentsOffset : $fitToContentsOffset "+lll())
-        startSettlingAnimation(child, state, top, false)
+
+        startSettlingAnimation(child, mState, top, false)
     }
    //</editor-fold>
 
@@ -1529,16 +1498,15 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
      * 找到滚动的孩子
      */
     @VisibleForTesting
-    open fun findScrollingChild(view: View?): View? {
+     fun findScrollingChild(view: View?): View? {
         if (ViewCompat.isNestedScrollingEnabled(view!!)) {
             return view
         }
         if (view is ViewGroup) {
-            val group = view
             var i = 0
-            val count = group.childCount
+            val count = view.childCount
             while (i < count) {
-                val scrollingChild = findScrollingChild(group.getChildAt(i))
+                val scrollingChild = findScrollingChild(view.getChildAt(i))
                 if (scrollingChild != null) {
                     return scrollingChild
                 }
@@ -1563,7 +1531,7 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
         val peek = calculatePeekHeight()
         //TODO 顶部换右边
         val newTop = child.left.negate() + yvel * HIDE_FRICTION ////todo 负数变正数
-        return Math.abs(newTop - collapsedOffset) / peek.toFloat() > HIDE_THRESHOLD
+        return abs(newTop - collapsedOffset) / peek.toFloat() > HIDE_THRESHOLD
     }
 
 
@@ -1572,7 +1540,7 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
      */
     fun dispatchOnSlide(top: Int) {
         val bottomSheet: View? = viewRef!!.get()
-        if (bottomSheet != null && !callbacks.isEmpty()) {
+        if (bottomSheet != null && callbacks.isNotEmpty()) {
             val slideOffset =                                                                                             // todo 高改宽
                 if (top > collapsedOffset || collapsedOffset == getExpandedOffset()) (collapsedOffset - top).toFloat() / (parentWidth - collapsedOffset) else (collapsedOffset - top).toFloat() / (collapsedOffset - getExpandedOffset())
             for (i in callbacks.indices) {
@@ -1610,7 +1578,7 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
      * 返回此左工作表是否应根据系统手势区域调整其位置。
      */
     //TODO 底部换左
-    fun isGestureInsetLeftIgnored(): Boolean {
+     fun isGestureInsetLeftIgnored(): Boolean {
         return gestureInsetLeftIgnored
     }
 
@@ -1639,7 +1607,7 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
 
         updateDrawableForTargetState(state)
         for (i in callbacks.indices) {
-            callbacks.get(i).onStateChanged(leftSheet, state)
+            callbacks[i].onStateChanged(leftSheet, state)
         }
         updateAccessibilityActions()
     }
@@ -1652,4 +1620,5 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
     }
 
     //</editor-fold>
-}
+
+ }
