@@ -27,6 +27,7 @@ import androidx.customview.view.AbsSavedState
 import androidx.customview.widget.ViewDragHelper
 import com.example.myBehavior.R
 import com.example.myBehavior.internal.ViewUtils
+import com.example.myBehavior.koltin.LogT.lll
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.resources.MaterialResources
 import com.google.android.material.shape.MaterialShapeDrawable
@@ -1110,6 +1111,7 @@ class MyButtomSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
         override fun onViewReleased(releasedChild: View, xvel: Float, yvel: Float) {
             val top: Int
             @State val targetState: Int
+            Log.d(TAG, "onViewReleased yvel: $yvel   "+lll())
             if (yvel < 0) { // Moving up
                 if (fitToContents) {
                     top = fitToContentsOffset
@@ -1125,6 +1127,7 @@ class MyButtomSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
                     }
                 }
             } else if (hideable && shouldHide(releasedChild, yvel)) {
+                Log.v(TAG, " 1  ${hideable && shouldHide(releasedChild, yvel)} "+lll())
                 // Hide if the view was either released low or it was a significant vertical swipe
                 // otherwise settle to closest expanded state.
                 if (Math.abs(xvel) < Math.abs(yvel) && yvel > SIGNIFICANT_VEL_THRESHOLD
@@ -1147,6 +1150,7 @@ class MyButtomSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
                     targetState = STATE_HALF_EXPANDED
                 }
             } else if (yvel == 0f || Math.abs(xvel) > Math.abs(yvel)) {
+                Log.v(TAG, "2  ${yvel == 0f || Math.abs(xvel) > Math.abs(yvel)} "+lll())
                 // If the Y velocity is 0 or the swipe was mostly horizontal indicated by the X velocity
                 // being greater than the Y velocity, settle to the nearest correct height.
                 //TODO 顶部换右边
@@ -1183,6 +1187,7 @@ class MyButtomSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
                     }
                 }
             } else { // Moving Down
+                Log.d(TAG, "3  fitToContents  $fitToContents "+lll())
                 if (fitToContents) {
                     top = collapsedOffset
                     targetState = STATE_COLLAPSED
@@ -1563,6 +1568,7 @@ class MyButtomSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
         if (skipCollapsed) {
             return true
         }//TODO 顶部换右边
+        Log.d(TAG, "onViewReleased   ${child.top < collapsedOffset}    child.top ${child.top}    collapsedOffset $collapsedOffset ")
         if (child.top < collapsedOffset) {
             // 它不应该隐藏，而是崩溃。
             return false

@@ -33,6 +33,7 @@ import com.example.myBehavior.koltin.negate
 import com.google.android.material.resources.MaterialResources
 import com.google.android.material.shape.MaterialShapeDrawable
 import com.google.android.material.shape.ShapeAppearanceModel
+import java.lang.Math.abs
 import java.lang.ref.WeakReference
 
 open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
@@ -1008,7 +1009,7 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
                             || releasedLow(releasedChild)}" +
                     "  fitToContentsOffset  : $fitToContentsOffset" +
                     " "+lll())
-            if (xvel > 0) { // 向右
+            if (abs(xvel) < 0) { // 向右
                 if (fitToContents) {
                     top = fitToContentsOffset
                     targetState = STATE_EXPANDED
@@ -1022,10 +1023,11 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
                         targetState = STATE_EXPANDED
                     }
                 }
-            } else if (hideable && shouldHide(releasedChild, xvel)) {
-                // Hide if the view was either released low or it was a significant vertical swipe
-                // otherwise settle to closest expanded state.
-                if (Math.abs(yvel) < Math.abs(xvel) && xvel > SIGNIFICANT_VEL_THRESHOLD
+            } else if (hideable && shouldHide(releasedChild, abs(xvel))) {
+                Log.d(TAG, " 1  ${hideable && shouldHide(releasedChild, abs(xvel))}  xvel : ${abs(xvel)} "+lll())
+                // 如果视图被释放得较低或者是显着的垂直滑动，则隐藏
+                // 否则会进入最接近的扩展状态。
+                if (Math.abs(xvel) < Math.abs(yvel) && yvel > SIGNIFICANT_VEL_THRESHOLD
                     || releasedLow(releasedChild)
                 ) {// todo 高改宽
                     top = parentWidth
@@ -1044,9 +1046,9 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
                     top = halfExpandedOffset
                     targetState = STATE_HALF_EXPANDED
                 }
-            } else if (yvel == 0f || Math.abs(xvel) > Math.abs(yvel)) {
-                // If the Y velocity is 0 or the swipe was mostly horizontal indicated by the X velocity
-                // being greater than the Y velocity, settle to the nearest correct height.
+            } else if (-yvel == 0f || xvel> yvel) {// todo (yvel == 0f || Math.abs(xvel) > Math.abs(yvel))
+                // 如果 Y 速度为 0 或滑动大部分是水平的，由 X 速度指示
+                // 大于 Y 速度，稳定到最接近的正确高度。
                 //TODO 顶部换右边
                 val currentTop = releasedChild.top
                 if (fitToContents) {
@@ -1080,7 +1082,8 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
                         }
                     }
                 }
-            } else { // Moving Down
+            } else { // 向左
+                Log.d(TAG,"3 "+lll())
                 if (fitToContents) {
                     top = collapsedOffset
                     targetState = STATE_COLLAPSED
@@ -1492,7 +1495,7 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
         val startedSettling = (viewDragHelper != null
                 //TODO  超级核心代码 实现 自动上下或则左右展开
                 //if (settleFromViewDragHelper) viewDragHelper!!.settleCapturedViewAt(child.left, top) else viewDragHelper!!.smoothSlideViewTo(child, child.left, top))
-                && if (settleFromViewDragHelper) viewDragHelper!!.settleCapturedViewAt(child.top, top) else viewDragHelper!!.smoothSlideViewTo(child,  top,child.top))
+                && if (settleFromViewDragHelper) viewDragHelper!!.settleCapturedViewAt( top,child.top) else viewDragHelper!!.smoothSlideViewTo(child,  top,child.top))
         Log.d(TAG, " smoothSlideViewTo  child.top : ${child.top}  top : $top  startedSettling : $startedSettling")
         if (startedSettling) {
             setStateInternal(STATE_SETTLING)
@@ -1552,13 +1555,14 @@ open class LeftSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
         if (skipCollapsed) {
             return true
         }//TODO 顶部换右边
-        if (child.right < collapsedOffset) {
+        Log.d(TAG, "onViewReleased  child.right : ${child.left}  collapsedOffset : $collapsedOffset")
+        if (child.left.negate() < collapsedOffset.negate()) { //todo 负数变正数
             // 它不应该隐藏，而是崩溃。
             return false
         }
         val peek = calculatePeekHeight()
         //TODO 顶部换右边
-        val newTop = child.right + yvel * HIDE_FRICTION
+        val newTop = child.left.negate() + yvel * HIDE_FRICTION ////todo 负数变正数
         return Math.abs(newTop - collapsedOffset) / peek.toFloat() > HIDE_THRESHOLD
     }
 

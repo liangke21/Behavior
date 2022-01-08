@@ -25,6 +25,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         val bi = LeftSheetBehavior.from(findViewById(R.id.sheet))
+        //val bi = MyButtomSheetBehavior.from(findViewById(R.id.sheet))
         findViewById<Button>(R.id.button).setOnClickListener {
 
             bi.setState(STATE_EXPANDED)
