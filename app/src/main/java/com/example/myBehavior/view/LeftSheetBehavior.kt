@@ -28,15 +28,16 @@ import com.example.myBehavior.R
 import com.example.myBehavior.internal.ViewUtils
 import com.example.myBehavior.koltin.LogT.lll
 import com.example.myBehavior.koltin.negate
-
 import com.google.android.material.resources.MaterialResources
 import com.google.android.material.shape.MaterialShapeDrawable
 import com.google.android.material.shape.ShapeAppearanceModel
+
+
 import java.lang.ref.WeakReference
 import kotlin.math.abs
 
 @SuppressLint("RestrictedApi")
- class LeftSheetBehavior<V : View> constructor(context: Context, attrs: AttributeSet?) : CoordinatorLayout.Behavior<V>(context, attrs) {
+class LeftSheetBehavior<V : View> constructor(context: Context, attrs: AttributeSet?) : CoordinatorLayout.Behavior<V>(context, attrs) {
 
 
     /** 用于监视有关左部工作表的事件的回调。  */
@@ -121,64 +122,64 @@ import kotlin.math.abs
 
     //<editor-fold desc="构造函数" >
 
-     init {
-         Log.d(TAG, "执行构造函数")
-         peekHeightGestureInsetBuffer = context.resources.getDimensionPixelSize(R.dimen.mtrl_min_touch_target_size)
-         val a = context.obtainStyledAttributes(attrs, R.styleable.BottomSheetBehavior_Layout)
-         shapeThemingEnabled = a.hasValue(R.styleable.BottomSheetBehavior_Layout_shapeAppearance)
-         val hasBackgroundTint = a.hasValue(R.styleable.BottomSheetBehavior_Layout_backgroundTint)
-         if (hasBackgroundTint) {
-             val bottomSheetColor = MaterialResources.getColorStateList(
-                 context, a, R.styleable.BottomSheetBehavior_Layout_backgroundTint
-             )
-             createMaterialShapeDrawable(context, attrs!!, hasBackgroundTint, bottomSheetColor)
-         } else {
-             createMaterialShapeDrawable(context, attrs!!, hasBackgroundTint)
-         }
-         createShapeValueAnimator()
-         if (VERSION.SDK_INT >= VERSION_CODES.LOLLIPOP) {
-             elevation = a.getDimension(R.styleable.BottomSheetBehavior_Layout_android_elevation, -1f)
-         }
-         var value = a.peekValue(R.styleable.BottomSheetBehavior_Layout_behavior_peekHeight)
-         if (value != null && value.data == PEEK_HEIGHT_AUTO) {
-             setPeekHeight(value.data)
-         } else {
-             setPeekHeight(
-                 a.getDimensionPixelSize(
-                     R.styleable.BottomSheetBehavior_Layout_behavior_peekHeight, PEEK_HEIGHT_AUTO
-                 )
-             )
-         }
-         setHideable(a.getBoolean(R.styleable.BottomSheetBehavior_Layout_behavior_hideable, false))
-         setGestureInsetBottomIgnored(
-             a.getBoolean(R.styleable.BottomSheetBehavior_Layout_gestureInsetBottomIgnored, false)
-         )
-         setFitToContents(
-             a.getBoolean(R.styleable.BottomSheetBehavior_Layout_behavior_fitToContents, true)
-         )
-         setSkipCollapsed(
-             a.getBoolean(R.styleable.BottomSheetBehavior_Layout_behavior_skipCollapsed, false)
-         )
-         setDraggable(a.getBoolean(R.styleable.BottomSheetBehavior_Layout_behavior_draggable, true))
-         setSaveFlags(a.getInt(R.styleable.BottomSheetBehavior_Layout_behavior_saveFlags, SAVE_NONE))
-         setHalfExpandedRatio(
-             a.getFloat(R.styleable.BottomSheetBehavior_Layout_behavior_halfExpandedRatio, 0.5f)
-         )
-         value = a.peekValue(R.styleable.BottomSheetBehavior_Layout_behavior_expandedOffset)
-         if (value != null && value.type == TypedValue.TYPE_FIRST_INT) {
-             setExpandedOffset(value.data)
-         } else {
-             setExpandedOffset(
-                 a.getDimensionPixelOffset(
-                     R.styleable.BottomSheetBehavior_Layout_behavior_expandedOffset, 0
-                 )
-             )
-         }
-         a.recycle()
-         val configuration = ViewConfiguration.get(context)
-         maximumVelocity = configuration.scaledMaximumFlingVelocity.toFloat()
-     }
-     //</editor-fold>
+    init {
+        Log.d(TAG, "执行构造函数")
+        peekHeightGestureInsetBuffer = context.resources.getDimensionPixelSize(R.dimen.mtrl_min_touch_target_size)
+        val a = context.obtainStyledAttributes(attrs, R.styleable.BottomSheetBehavior_Layout)
+        shapeThemingEnabled = a.hasValue(R.styleable.BottomSheetBehavior_Layout_shapeAppearance)
+        val hasBackgroundTint = a.hasValue(R.styleable.BottomSheetBehavior_Layout_backgroundTint)
+        if (hasBackgroundTint) {
+            val bottomSheetColor = MaterialResources.getColorStateList(
+                context, a, R.styleable.BottomSheetBehavior_Layout_backgroundTint
+            )
+            createMaterialShapeDrawable(context, attrs!!, hasBackgroundTint, bottomSheetColor)
+        } else {
+            createMaterialShapeDrawable(context, attrs!!, hasBackgroundTint)
+        }
+        createShapeValueAnimator()
+        if (VERSION.SDK_INT >= VERSION_CODES.LOLLIPOP) {
+            elevation = a.getDimension(R.styleable.BottomSheetBehavior_Layout_android_elevation, -1f)
+        }
+        var value = a.peekValue(R.styleable.BottomSheetBehavior_Layout_behavior_peekHeight)
+        if (value != null && value.data == PEEK_HEIGHT_AUTO) {
+            setPeekHeight(value.data)
+        } else {
+            setPeekHeight(
+                a.getDimensionPixelSize(
+                    R.styleable.BottomSheetBehavior_Layout_behavior_peekHeight, PEEK_HEIGHT_AUTO
+                )
+            )
+        }
+        setHideable(a.getBoolean(R.styleable.BottomSheetBehavior_Layout_behavior_hideable, false))
+        setGestureInsetBottomIgnored(
+            a.getBoolean(R.styleable.BottomSheetBehavior_Layout_gestureInsetBottomIgnored, false)
+        )
+        setFitToContents(
+            a.getBoolean(R.styleable.BottomSheetBehavior_Layout_behavior_fitToContents, true)
+        )
+        setSkipCollapsed(
+            a.getBoolean(R.styleable.BottomSheetBehavior_Layout_behavior_skipCollapsed, false)
+        )
+        setDraggable(a.getBoolean(R.styleable.BottomSheetBehavior_Layout_behavior_draggable, true))
+        setSaveFlags(a.getInt(R.styleable.BottomSheetBehavior_Layout_behavior_saveFlags, SAVE_NONE))
+        setHalfExpandedRatio(
+            a.getFloat(R.styleable.BottomSheetBehavior_Layout_behavior_halfExpandedRatio, 0.5f)
+        )
+        value = a.peekValue(R.styleable.BottomSheetBehavior_Layout_behavior_expandedOffset)
+        if (value != null && value.type == TypedValue.TYPE_FIRST_INT) {
+            setExpandedOffset(value.data)
+        } else {
+            setExpandedOffset(
+                a.getDimensionPixelOffset(
+                    R.styleable.BottomSheetBehavior_Layout_behavior_expandedOffset, 0
+                )
+            )
+        }
+        a.recycle()
+        val configuration = ViewConfiguration.get(context)
+        maximumVelocity = configuration.scaledMaximumFlingVelocity.toFloat()
+    }
+    //</editor-fold>
 
 
     //<editor-fold desc="构造方法的延伸" >
@@ -193,7 +194,7 @@ import kotlin.math.abs
      * @attr ref
      * com.google.android.material.R.styleable#BottomSheetBehavior_Layout_behavior_expandedOffset
      */
-     fun setExpandedOffset(offset: Int) {
+    fun setExpandedOffset(offset: Int) {
         require(offset >= 0) { "offset must be greater than or equal to 0" }
         this.expandedOffsetL = offset
     }
@@ -228,7 +229,7 @@ import kotlin.math.abs
      * @see .getSaveFlags
      * @attr ref com.google.android.material.R.styleable#BottomSheetBehavior_Layout_behavior_saveFlags
      */
-     fun setSaveFlags(@SaveFlags flags: Int) {
+    fun setSaveFlags(@SaveFlags flags: Int) {
         this.saveFlags = flags
     }
 
@@ -240,7 +241,7 @@ import kotlin.math.abs
      * @param draggable `false` to prevent dragging the sheet to collapse and expand
      * @attr ref com.google.android.material.R.styleable#BottomSheetBehavior_Layout_behavior_draggable
      */
-     fun setDraggable(draggable: Boolean) {
+    fun setDraggable(draggable: Boolean) {
         this.draggable = draggable
     }
 
@@ -253,7 +254,7 @@ import kotlin.math.abs
      * @attr ref
      * com.google.android.material.R.styleable#BottomSheetBehavior_Layout_behavior_skipCollapsed
      */
-     fun setSkipCollapsed(skipCollapsed: Boolean) {
+    fun setSkipCollapsed(skipCollapsed: Boolean) {
         this.skipCollapsed = skipCollapsed
     }
 
@@ -265,7 +266,7 @@ import kotlin.math.abs
      *
      * @param fitToContents whether or not to fit the expanded sheet to its contents.
      */
-   fun setFitToContents(fitToContents: Boolean) {
+    fun setFitToContents(fitToContents: Boolean) {
         if (this.fitToContents == fitToContents) {
             return
         }
@@ -305,7 +306,7 @@ import kotlin.math.abs
      */
 
     @JvmName("setHideable1")
-     fun setHideable(hideable: Boolean) {
+    fun setHideable(hideable: Boolean) {
         if (this.hideable != hideable) {
             this.hideable = hideable
             if (!hideable && state == STATE_HIDDEN) {
@@ -324,7 +325,7 @@ import kotlin.math.abs
      * @attr ref
      * com.google.android.material.R.styleable#BottomSheetBehavior_Layout_behavior_peekHeight
      */
-     fun setPeekHeight(peekHeight: Int) {
+    fun setPeekHeight(peekHeight: Int) {
         setPeekHeight(peekHeight, false)
     }
 
@@ -607,7 +608,7 @@ import kotlin.math.abs
     override fun onStartNestedScroll(coordinatorLayout: CoordinatorLayout, child: V, directTargetChild: View, target: View, axes: Int, type: Int): Boolean {
         lastNestedScrollDy = 0
         nestedScrolled = false
-        return axes and ViewCompat.SCROLL_AXIS_VERTICAL != 0 // todo 垂直改为垂直
+        return axes and ViewCompat.SCROLL_AXIS_VERTICAL != 0 // TODO 为更改
     }
 
     override fun onNestedPreScroll(coordinatorLayout: CoordinatorLayout, child: V, target: View, dx: Int, dy: Int, consumed: IntArray, type: Int) {
@@ -623,7 +624,7 @@ import kotlin.math.abs
         // TODO 为更改
         val currentTop = child.top
         val newTop = currentTop - dy
-        Log.d(TAG,"onNestedPreScroll  dx $dx  dy  $dy")
+        Log.d(TAG, "onNestedPreScroll  dx $dx  dy  $dy")
         if (dy > 0) { // Upward
             if (newTop < getExpandedOffset()) {
                 consumed[1] = currentTop - getExpandedOffset()
@@ -880,7 +881,7 @@ import kotlin.math.abs
         }
 
         //<editor-fold desc="字段" >
-        private const val  DEF_STYLE_RES = R.style.Widget_Design_BottomSheet_Modal //DEF 风格资源
+        private const val DEF_STYLE_RES = R.style.Widget_Design_BottomSheet_Modal //DEF 风格资源
 
         //<editor-fold desc="状态" >
         /** 左侧工作表正在拖动.  */
@@ -997,12 +998,15 @@ import kotlin.math.abs
         override fun onViewReleased(releasedChild: View, xvel: Float, yvel: Float) {
             val top: Int
             @State val targetState: Int
-            Log.v(TAG,"onViewReleased xvel : $xvel fitToContents : $fitToContents   ${hideable && shouldHide(releasedChild, xvel)}" +
-                    "  ${
-                        abs(yvel) < abs(xvel) && xvel > SIGNIFICANT_VEL_THRESHOLD
-                            || releasedLow(releasedChild)}" +
-                    "  fitToContentsOffset  : $fitToContentsOffset" +
-                    " "+lll())
+            Log.v(
+                TAG, "onViewReleased xvel : $xvel fitToContents : $fitToContents   ${hideable && shouldHide(releasedChild, xvel)}" +
+                        "  ${
+                            abs(yvel) < abs(xvel) && xvel > SIGNIFICANT_VEL_THRESHOLD
+                                    || releasedLow(releasedChild)
+                        }" +
+                        "  fitToContentsOffset  : $fitToContentsOffset" +
+                        " " + lll()
+            )
             if (abs(xvel) < 0) { // 向右
                 if (fitToContents) {
                     top = fitToContentsOffset
@@ -1018,7 +1022,7 @@ import kotlin.math.abs
                     }
                 }
             } else if (hideable && shouldHide(releasedChild, xvel)) {
-                Log.d(TAG, " 1  ${hideable && shouldHide(releasedChild, abs(xvel))}  xvel : ${abs(xvel)} "+lll())
+                Log.d(TAG, " 1  ${hideable && shouldHide(releasedChild, abs(xvel))}  xvel : ${abs(xvel)} " + lll())
                 // 如果视图被释放得较低或者是显着的垂直滑动，则隐藏
                 // 否则会进入最接近的扩展状态。
                 if (abs(yvel) < abs(xvel) && abs(xvel) > SIGNIFICANT_VEL_THRESHOLD//abs(yvel) < abs(yvel) && yvel > SIGNIFICANT_VEL_THRESHOLD
@@ -1040,8 +1044,8 @@ import kotlin.math.abs
                     top = halfExpandedOffset
                     targetState = STATE_HALF_EXPANDED
                 }
-            } else if (xvel == 0f || xvel> yvel) {// todo (yvel == 0f || Math.abs(xvel) > Math.abs(yvel))
-                Log.v(TAG,"3  yvel  $yvel   xvel $xvel "+lll())
+            } else if (xvel == 0f || xvel > yvel) {// todo (yvel == 0f || Math.abs(xvel) > Math.abs(yvel))
+                Log.v(TAG, "3  yvel  $yvel   xvel $xvel " + lll())
                 // 如果 Y 速度为 0 或滑动大部分是水平的，由 X 速度指示
                 // 大于 Y 速度，稳定到最接近的正确高度。
                 //TODO 为更改
@@ -1078,7 +1082,7 @@ import kotlin.math.abs
                     }
                 }
             } else { // 向左
-                Log.d(TAG,"4 "+lll())
+                Log.d(TAG, "4 " + lll())
                 if (fitToContents) {
                     top = collapsedOffset
                     targetState = STATE_COLLAPSED
@@ -1100,18 +1104,26 @@ import kotlin.math.abs
             startSettlingAnimation(releasedChild, targetState, top, true)
         }
 
-       override fun clampViewPositionVertical(child: View, top: Int, dy: Int): Int {
+        override fun clampViewPositionVertical(child: View, top: Int, dy: Int): Int {
             return child.top
         }
 
         override fun clampViewPositionHorizontal(child: View, left: Int, dx: Int): Int {
 
-            Log.d(TAG, " 右滑 $left  getExpandedOffset  ${getExpandedOffset()}  hideable : $hideable   parentWidth :  $parentWidth   collapsedOffset : $collapsedOffset    MathUtils.clamp  ${MathUtils.clamp(   
-                left, getExpandedOffset(), if (hideable) parentWidth else collapsedOffset
-            )}")
-            Log.d(TAG, " 左滑 $left  getExpandedOffset  ${getExpandedOffset()}  hideable : $hideable   parentWidth :  $parentWidth   collapsedOffset : $collapsedOffset    MathUtils.clamp  ${MathUtils.clamp(   
-                left, if (hideable) -parentWidth else collapsedOffset, getExpandedOffset()
-            )}")
+            Log.d(
+                TAG, " 右滑 $left  getExpandedOffset  ${getExpandedOffset()}  hideable : $hideable   parentWidth :  $parentWidth   collapsedOffset : $collapsedOffset    MathUtils.clamp  ${
+                    MathUtils.clamp(
+                        left, getExpandedOffset(), if (hideable) parentWidth else collapsedOffset
+                    )
+                }"
+            )
+            Log.d(
+                TAG, " 左滑 $left  getExpandedOffset  ${getExpandedOffset()}  hideable : $hideable   parentWidth :  $parentWidth   collapsedOffset : $collapsedOffset    MathUtils.clamp  ${
+                    MathUtils.clamp(
+                        left, if (hideable) -parentWidth else collapsedOffset, getExpandedOffset()
+                    )
+                }"
+            )
             return MathUtils.clamp(   //todo 高改负宽
                 left, if (hideable) -parentWidth else collapsedOffset, getExpandedOffset()
             )
@@ -1150,6 +1162,7 @@ import kotlin.math.abs
             isPosted = false
         }
     }
+
 
     //</editor-fold>
 
@@ -1197,7 +1210,7 @@ import kotlin.math.abs
      * 确保透视高度至少与底部手势插入大小一样大，以便始终可以拖动工作表，但仅在系统需要插入时才可以拖动
      */
     private fun setSystemGestureInsets(@NonNull child: View) {
-        if (VERSION.SDK_INT >= VERSION_CODES.Q && !isGestureInsetLeftIgnored() && !peekHeightAuto) {
+        if (VERSION.SDK_INT >= VERSION_CODES.Q && !isGestureInsetIgnored() && !peekHeightAuto) {
             ViewUtils.doOnApplyWindowInsets(child, object : ViewUtils.OnApplyWindowInsetsListener {
                 override fun onApplyWindowInsets(view: View, insets: WindowInsetsCompat, initialPadding: ViewUtils.RelativePadding): WindowInsetsCompat {
                     //TODO 未更改
@@ -1240,9 +1253,9 @@ import kotlin.math.abs
         val parent = child.parent
         if (parent != null && parent.isLayoutRequested && ViewCompat.isAttachedToWindow(child)) {
             val finalState = state
-            child.post { settleToState(child, finalState) }
+            child.post { setTleToState(child, finalState) }
         } else {
-            settleToState(child, state)
+            setTleToState(child, state)
         }
     }
 
@@ -1283,15 +1296,15 @@ import kotlin.math.abs
                     && importantForAccessibilityMap != null && importantForAccessibilityMap!!.containsKey(child)
                 ) {
                     // 恢复子视图的可访问性值的原始重要。
-                    importantForAccessibilityMap!!.get(child)?.let { ViewCompat.setImportantForAccessibility(child, it) }
+                    importantForAccessibilityMap!![child]?.let { ViewCompat.setImportantForAccessibility(child, it) }
                 }
             }
         }
         if (!expanded) {
             importantForAccessibilityMap = null
         } else if (updateImportantForAccessibilityOnSiblings) {
-            // If the siblings of the bottom sheet have been set to not important for a11y, move the focus
-            // to the bottom sheet when expanded.
+            // 如果底部工作表的兄弟已设置为对 a11y 不重要，则移动焦点
+            // 展开时到底页。
             viewRef!!.get()!!.sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_FOCUSED)
         }
     }
@@ -1426,7 +1439,7 @@ import kotlin.math.abs
     //</editor-fold>
 
     //<editor-fold desc="解决状态" >
-    fun settleToState(child: View, state: Int) {
+    fun setTleToState(child: View, state: Int) {
 
         var mState = state
         var top: Int
@@ -1440,7 +1453,7 @@ import kotlin.math.abs
                 top = fitToContentsOffset
             }
         } else if (mState == STATE_EXPANDED) {
-            Log.v(TAG,"settleToState  STATE_EXPANDED  ${getExpandedOffset()} ")
+            Log.v(TAG, "settleToState  STATE_EXPANDED  ${getExpandedOffset()} ")
             top = getExpandedOffset()
         } else if (hideable && mState == STATE_HIDDEN) {
             //todo 高改宽
@@ -1451,7 +1464,7 @@ import kotlin.math.abs
 
         startSettlingAnimation(child, mState, top, false)
     }
-   //</editor-fold>
+    //</editor-fold>
 
 
     //<editor-fold desc="计算半扩展偏移" >
@@ -1461,15 +1474,16 @@ import kotlin.math.abs
     }
     //</editor-fold>
 
-  //<editor-fold desc="开始稳定动画" >
+    //<editor-fold desc="开始稳定动画" >
     fun startSettlingAnimation(child: View, state: Int, top: Int, settleFromViewDragHelper: Boolean) {
-        Log.v(TAG, lll())
-
         val startedSettling = (viewDragHelper != null
                 //TODO  核心代码 实现 自动上下或则左右展开
                 //if (settleFromViewDragHelper) viewDragHelper!!.settleCapturedViewAt(child.left, top) else viewDragHelper!!.smoothSlideViewTo(child, child.left, top))
-                && if (settleFromViewDragHelper) viewDragHelper!!.settleCapturedViewAt( top,child.top) else viewDragHelper!!.smoothSlideViewTo(child,  top,child.top))
-        Log.d(TAG, " smoothSlideViewTo  child.top : ${child.top}  top : $top  startedSettling : $startedSettling")
+                && if (settleFromViewDragHelper) viewDragHelper!!.settleCapturedViewAt(top, child.top) else viewDragHelper!!.smoothSlideViewTo(child, top, child.top))
+  /*      Log.d(
+            TAG, " startSettlingAnimation  child.top : ${child.top}  top : $top  startedSettling : $startedSettling   settleRunnable :${settleRunnable == null} " +
+                    "viewDragHelper是否为null : ${viewDragHelper != null}"
+        )*/
         if (startedSettling) {
             setStateInternal(STATE_SETTLING)
             // STATE_SETTLING 不会对材质形状进行动画处理，因此请在此处使用目标状态进行动画处理。
@@ -1502,7 +1516,7 @@ import kotlin.math.abs
      * 找到滚动的孩子
      */
     @VisibleForTesting
-     fun findScrollingChild(view: View?): View? {
+    fun findScrollingChild(view: View?): View? {
         if (ViewCompat.isNestedScrollingEnabled(view!!)) {
             return view
         }
@@ -1581,11 +1595,9 @@ import kotlin.math.abs
     /**
      * 返回此左工作表是否应根据系统手势区域调整其位置。
      */
-     fun isGestureInsetLeftIgnored(): Boolean {
+    fun isGestureInsetIgnored(): Boolean {
         return gestureInsetLeftIgnored
     }
-
-
 
 
     /**
@@ -1624,4 +1636,4 @@ import kotlin.math.abs
 
     //</editor-fold>
 
- }
+}

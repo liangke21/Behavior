@@ -25,10 +25,10 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         val bi = LeftSheetBehavior.from(findViewById(R.id.sheet))
-        //val bi = MyButtomSheetBehavior.from(findViewById(R.id.sheet))
+        //  val bi = MyButtomSheetBehavior.from(findViewById(R.id.sheet))
         findViewById<Button>(R.id.button).setOnClickListener {
 
-            supportFragmentManager.beginTransaction().replace(R.id.fl2,BlankFragment()).commit()
+            supportFragmentManager.beginTransaction().replace(R.id.fl2, BlankFragment()).commit()
             supportFragmentManager.executePendingTransactions()
             bi.setState(STATE_EXPANDED)
 
@@ -39,8 +39,8 @@ class MainActivity : AppCompatActivity() {
             bi.setState(STATE_COLLAPSED)
         }
 
-       binding.button2.setOnClickListener {
-           bi.setState(STATE_HALF_EXPANDED)
-       }
+        binding.button2.setOnClickListener {
+            bi.setState(STATE_HALF_EXPANDED)
+        }
     }
 }

@@ -530,6 +530,7 @@ class MyButtomSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
 
     override fun onAttachedToLayoutParams(params: CoordinatorLayout.LayoutParams) {
         super.onAttachedToLayoutParams(params)
+        Log.v(TAG,"onAttachedToLayoutParams")
         //这些可能已经为空，但只是为了安全，明确分配它们。这让我们知道
         // 我们第一次通过检查（viewRef == null）以这种行为进行布局。
 
@@ -539,6 +540,7 @@ class MyButtomSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
 
     override fun onDetachedFromLayoutParams() {
         super.onDetachedFromLayoutParams()
+        Log.v(TAG,"onDetachedFromLayoutPar")
         // 释放引用，这样我们就不会在未附加到视图时运行不必要的代码路径。
         viewRef = null
         viewDragHelper = null
@@ -1657,11 +1659,14 @@ class MyButtomSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
      * 开始稳定定动画
      */
     fun startSettlingAnimation(child: View, state: Int, top: Int, settleFromViewDragHelper: Boolean) {
-        Log.v(TAG, "startSettlingAnimation")
+        Log.v(TAG, "startSettlingAnimation   settleFromViewDragHelper : $settleFromViewDragHelper")
+        Log.v(TAG, "startSettlingAnimation   viewDragHelper是否为null : ${viewDragHelper != null}")
         val startedSettling = (viewDragHelper != null
                 //TODO 有方向未更改
                 && if (settleFromViewDragHelper) viewDragHelper!!.settleCapturedViewAt(child.left, top) else viewDragHelper!!.smoothSlideViewTo(child, child.left, top))
-        Log.v(TAG, "startSettlingAnimation startedSettling : $startedSettling")
+        Log.d(
+            LeftSheetBehavior.TAG, " startSettlingAnimation  child.top : ${child.left}  top : $top  startedSettling : $startedSettling   settleRunnable :${settleRunnable == null} " +
+                "viewDragHelper是否为null : ${viewDragHelper != null}")
         if (startedSettling) {
             setStateInternal(STATE_SETTLING)
             // STATE_SETTLING 不会对材质形状进行动画处理，因此请在此处使用目标状态进行动画处理。
