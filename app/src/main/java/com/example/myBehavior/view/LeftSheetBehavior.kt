@@ -1508,7 +1508,7 @@ class LeftSheetBehavior<V : View> constructor(context: Context, attrs: Attribute
             // 如果 SettleRunnable 尚未发布，请将其发布为正确的状态。
             if (!settleRunnable!!.isPosted) {
                 settleRunnable!!.targetState = state
-                ViewCompat.postOnAnimation(child, settleRunnable)
+                ViewCompat.postOnAnimation(child, settleRunnable!!)
                 settleRunnable!!.isPosted = true
             } else {
                 // 否则，如果已经发布，只需更新目标状态。

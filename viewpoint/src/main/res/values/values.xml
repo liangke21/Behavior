@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="global_behavior">com.liangke.viewpoint.behavior.GlobalBehavior</string>
+</resources>

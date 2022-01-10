@@ -7,6 +7,8 @@ import android.util.Log
 import android.widget.Button
 import com.example.myBehavior.databinding.ActivityMainBinding
 import com.example.myBehavior.view.MyBehavior
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.liangke.viewpoint.behavior.GlobalBehavior
 
 
 class MainActivity : AppCompatActivity() {
@@ -21,7 +23,8 @@ class MainActivity : AppCompatActivity() {
 
         //val bi = LeftSheetBehavior.from(findViewById(R.id.sheet))
        //   val bi = MyButtomSheetBehavior.from(findViewById(R.id.sheet))
-          val bi = MyBehavior.from(findViewById(R.id.sheet))
+        //  val bi = MyBehavior.from(findViewById(R.id.sheet))
+          val bi = GlobalBehavior.since(findViewById(R.id.sheet))
         findViewById<Button>(R.id.button).setOnClickListener {
 
             supportFragmentManager.beginTransaction().replace(R.id.fl2, BlankFragment()).commit()
