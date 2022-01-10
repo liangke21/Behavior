@@ -516,6 +516,7 @@ class MyButtomSheetBehavior<V : View> : CoordinatorLayout.Behavior<V> {
     }
 
     override fun onRestoreInstanceState(parent: CoordinatorLayout, child: V, state: Parcelable) {
+        Log.v(TAG, "onRestoreInstanceState")
         val ss = state as SavedState
         ss.superState?.let { super.onRestoreInstanceState(parent, child, it) }
         //恢复由 saveFlags 指定的可选状态值

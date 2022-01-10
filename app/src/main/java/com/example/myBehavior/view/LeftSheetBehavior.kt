@@ -409,11 +409,12 @@ class LeftSheetBehavior<V : View> constructor(context: Context, attrs: Attribute
      *保存实例状态
      */
     override fun onSaveInstanceState(parent: CoordinatorLayout, child: V): SavedState? {
-
+        Log.v(TAG_BEHAVIOR, lll())
         return super.onSaveInstanceState(parent, child)?.let { SavedState(it, this) }
     }
 
     override fun onRestoreInstanceState(parent: CoordinatorLayout, child: V, state: Parcelable) {
+        Log.v(TAG_BEHAVIOR, lll())
         val ss = state as SavedState
         ss.superState?.let { super.onRestoreInstanceState(parent, child, it) }
         //恢复由 saveFlags 指定的可选状态值
@@ -427,6 +428,7 @@ class LeftSheetBehavior<V : View> constructor(context: Context, attrs: Attribute
     }
 
     override fun onAttachedToLayoutParams(params: CoordinatorLayout.LayoutParams) {
+        Log.v(TAG_BEHAVIOR, lll())
         super.onAttachedToLayoutParams(params)
         //这些可能已经为空，但只是为了安全，明确分配它们。这让我们知道
         // 我们第一次通过检查（viewRef == null）以这种行为进行布局。
@@ -437,12 +439,15 @@ class LeftSheetBehavior<V : View> constructor(context: Context, attrs: Attribute
 
     override fun onDetachedFromLayoutParams() {
         super.onDetachedFromLayoutParams()
+        Log.v(TAG_BEHAVIOR, lll())
         // 释放引用，这样我们就不会在未附加到视图时运行不必要的代码路径。
         viewRef = null
         viewDragHelper = null
     }
 
+
     override fun onLayoutChild(parent: CoordinatorLayout, child: V, layoutDirection: Int): Boolean {
+        Log.v(TAG_BEHAVIOR, lll())
         if (ViewCompat.getFitsSystemWindows(parent) && !ViewCompat.getFitsSystemWindows(child)) {
             child.fitsSystemWindows = true
         }
@@ -475,7 +480,7 @@ class LeftSheetBehavior<V : View> constructor(context: Context, attrs: Attribute
             }
         }
         if (viewDragHelper == null) {
-            viewDragHelper = dragCallback?.let { ViewDragHelper.create(parent, it) }
+            viewDragHelper = dragCallback.let { ViewDragHelper.create(parent, it) }
         }
         //<editor-fold desc="更改偏移量核心代码1" >
 
@@ -519,6 +524,7 @@ class LeftSheetBehavior<V : View> constructor(context: Context, attrs: Attribute
      * 拦截触摸事件
      */
     override fun onInterceptTouchEvent(parent: CoordinatorLayout, child: V, ev: MotionEvent): Boolean {
+        Log.v(TAG_BEHAVIOR, lll())
         if (!child.isShown || !draggable) {
             ignoreEvents = true
             return false
@@ -577,6 +583,7 @@ class LeftSheetBehavior<V : View> constructor(context: Context, attrs: Attribute
     }
 
     override fun onTouchEvent(parent: CoordinatorLayout, child: V, ev: MotionEvent): Boolean {
+        Log.v(TAG_BEHAVIOR, lll())
         if (!child.isShown) {
             return false
         }
@@ -606,12 +613,14 @@ class LeftSheetBehavior<V : View> constructor(context: Context, attrs: Attribute
     }
 
     override fun onStartNestedScroll(coordinatorLayout: CoordinatorLayout, child: V, directTargetChild: View, target: View, axes: Int, type: Int): Boolean {
+        Log.v(TAG_BEHAVIOR, lll())
         lastNestedScrollDy = 0
         nestedScrolled = false
         return axes and ViewCompat.SCROLL_AXIS_VERTICAL != 0 // TODO 为更改
     }
 
     override fun onNestedPreScroll(coordinatorLayout: CoordinatorLayout, child: V, target: View, dx: Int, dy: Int, consumed: IntArray, type: Int) {
+        Log.v(TAG_BEHAVIOR, lll())
         Log.v(TAG, lll())
         if (type == ViewCompat.TYPE_NON_TOUCH) {
             // Ignore fling here. The ViewDragHelper handles it.
@@ -666,7 +675,7 @@ class LeftSheetBehavior<V : View> constructor(context: Context, attrs: Attribute
     }
 
     override fun onStopNestedScroll(coordinatorLayout: CoordinatorLayout, child: V, target: View, type: Int) {
-        Log.v(TAG, lll())
+        Log.v(TAG_BEHAVIOR, lll())
         // TODO 为更改
         if (child.top == getExpandedOffset()) {
             setStateInternal(STATE_EXPANDED)
@@ -749,10 +758,11 @@ class LeftSheetBehavior<V : View> constructor(context: Context, attrs: Attribute
     }
 
     override fun onNestedScroll(coordinatorLayout: CoordinatorLayout, child: V, target: View, dxConsumed: Int, dyConsumed: Int, dxUnconsumed: Int, dyUnconsumed: Int, type: Int, consumed: IntArray) {
-
+        Log.v(TAG_BEHAVIOR, lll())
     }
 
     override fun onNestedPreFling(coordinatorLayout: CoordinatorLayout, child: V, target: View, velocityX: Float, velocityY: Float): Boolean {
+        Log.v(TAG_BEHAVIOR, lll())
         return if (nestedScrollingChildRef != null) {
             (target === nestedScrollingChildRef!!.get()
                     && (state != STATE_EXPANDED
@@ -795,6 +805,7 @@ class LeftSheetBehavior<V : View> constructor(context: Context, attrs: Attribute
 
 
         const val TAG = "LeftSheetBehavior"
+        const val TAG_BEHAVIOR = "Behavior"
 
         /**
          * A utility function to get the [LeftSheetBehavior] associated with the `view`.
@@ -1480,10 +1491,10 @@ class LeftSheetBehavior<V : View> constructor(context: Context, attrs: Attribute
                 //TODO  核心代码 实现 自动上下或则左右展开
                 //if (settleFromViewDragHelper) viewDragHelper!!.settleCapturedViewAt(child.left, top) else viewDragHelper!!.smoothSlideViewTo(child, child.left, top))
                 && if (settleFromViewDragHelper) viewDragHelper!!.settleCapturedViewAt(top, child.top) else viewDragHelper!!.smoothSlideViewTo(child, top, child.top))
-  /*      Log.d(
-            TAG, " startSettlingAnimation  child.top : ${child.top}  top : $top  startedSettling : $startedSettling   settleRunnable :${settleRunnable == null} " +
-                    "viewDragHelper是否为null : ${viewDragHelper != null}"
-        )*/
+        /*      Log.d(
+                  TAG, " startSettlingAnimation  child.top : ${child.top}  top : $top  startedSettling : $startedSettling   settleRunnable :${settleRunnable == null} " +
+                          "viewDragHelper是否为null : ${viewDragHelper != null}"
+              )*/
         if (startedSettling) {
             setStateInternal(STATE_SETTLING)
             // STATE_SETTLING 不会对材质形状进行动画处理，因此请在此处使用目标状态进行动画处理。

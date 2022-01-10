@@ -3,7 +3,6 @@ package com.example.myBehavior.internal
 import android.view.View
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.google.android.material.internal.ViewUtils
 
 
 object ViewUtils {

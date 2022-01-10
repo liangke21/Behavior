@@ -8,8 +8,8 @@
   android:layout_height="match_parent"
   app:behavior_peekHeight="50dp"
   app:behavior_hideable="true"
-  app:layout_behavior="@string/bottom_sheet_behavior"
-  android:background="#CDDC39"
+  app:layout_behavior="@string/bottom_sheet_behavior2"
+
   >
 
   <TextView

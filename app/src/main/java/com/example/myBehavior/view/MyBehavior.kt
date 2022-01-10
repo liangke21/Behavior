@@ -6,7 +6,9 @@ import android.os.Parcelable
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
+import androidx.annotation.NonNull
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 
 class MyBehavior<V : View> : CoordinatorLayout.Behavior<V>  {
@@ -59,7 +61,18 @@ class MyBehavior<V : View> : CoordinatorLayout.Behavior<V>  {
     }
 
     override fun onLayoutChild(parent: CoordinatorLayout, child: V, layoutDirection: Int): Boolean {
-        return super.onLayoutChild(parent, child, layoutDirection)
+        if (ViewCompat.getFitsSystemWindows(parent) && !ViewCompat.getFitsSystemWindows(child)) {
+            child.fitsSystemWindows = true
+        }
+
+        if (ViewCompat.getImportantForAccessibility(child)
+            == ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_AUTO
+        ) {
+            ViewCompat.setImportantForAccessibility(child, ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES)
+        }
+        parent.onLayoutChild(child, layoutDirection)
+        ViewCompat.offsetLeftAndRight(child,1030)
+        return true
     }
 
 
@@ -110,5 +123,26 @@ class MyBehavior<V : View> : CoordinatorLayout.Behavior<V>  {
 
     override fun getInsetDodgeRect(parent: CoordinatorLayout, child: V, rect: Rect): Boolean {
         return super.getInsetDodgeRect(parent, child, rect)
+    }
+
+
+
+    companion object{
+        /**
+         * A utility function to get the [LeftSheetBehavior] associated with the `view`.
+         *
+         * @param view The [View] with [LeftSheetBehavior].
+         * @return The [LeftSheetBehavior] associated with the `view`.
+         */
+        @NonNull
+        @JvmStatic
+        fun <V : View?> from(view: V): MyBehavior<View> {
+            val params = view?.layoutParams
+            require(params is CoordinatorLayout.LayoutParams) { "该视图不是 CoordinatorLayout 的子视图" }
+
+            val behavior = params.behavior
+            require(behavior is MyBehavior<*>) { "The view is not associated with BottomSheetBehavior" }
+            return behavior as MyBehavior
+        }
     }
 }
