@@ -1,4 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="global_behavior">com.liangke.viewpoint.behavior.GlobalBehavior</string>
+
+    <declare-styleable name="GlobalBehavior">
+
+        <attr name="direction" format="integer">
+            <enum name="top" value="1" />
+            <enum name="bottom" value="2" />
+            <enum name="left" value="3" />
+            <enum name="right" value="4" />
+        </attr>
+
+    </declare-styleable>
 </resources>

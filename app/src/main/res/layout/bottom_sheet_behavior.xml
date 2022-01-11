@@ -1,46 +1,47 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--  app:behavior_peekHeight="50dp"   底部高度-->
+<?xml version="1.0" encoding="utf-8"?><!--  app:behavior_peekHeight="50dp"   底部高度-->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-  xmlns:app="http://schemas.android.com/apk/res-auto"
-  android:id="@+id/sheet"
-  android:orientation="vertical"
-  android:layout_width="match_parent"
-  android:layout_height="match_parent"
-  app:behavior_peekHeight="50dp"
-  app:behavior_hideable="true"
-  app:layout_behavior="@string/global_behavior"
-   android:background="#2C2CB8"
-  >
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/sheet"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#2C2CB8"
+    android:orientation="vertical"
+    app:direction="left"
+    app:behavior_hideable="true"
+    app:behavior_peekHeight="50dp"
+    app:layout_behavior="@string/global_behavior">
 
-  <TextView
-    android:layout_width="match_parent"
-    android:layout_height="80dp"
-    android:text="尽管呼吸着同一天空的气息"
-    android:textSize="20sp"
-    android:gravity="center"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:gravity="center"
+        android:text="尽管呼吸着同一天空的气息"
+        android:textSize="20sp" />
 
-  <TextView
-    android:layout_width="match_parent"
-    android:layout_height="80dp"
-    android:text="却无法拥抱到你"
-    android:textSize="20sp"
-    android:gravity="center"/>
-  <TextView
-    android:layout_width="match_parent"
-    android:layout_height="80dp"
-    android:text="如果转换了时空身份和姓名"
-    android:textSize="20sp"
-    android:gravity="center"/>
-  <TextView
-    android:layout_width="match_parent"
-    android:layout_height="80dp"
-    android:text="但愿认得你眼睛"
-    android:textSize="20sp"
-    android:gravity="center"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:gravity="center"
+        android:text="却无法拥抱到你"
+        android:textSize="20sp" />
 
-  <FrameLayout
-      android:id="@+id/fl2"
-      android:layout_width="match_parent"
-      android:layout_height="match_parent"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:gravity="center"
+        android:text="如果转换了时空身份和姓名"
+        android:textSize="20sp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:gravity="center"
+        android:text="但愿认得你眼睛"
+        android:textSize="20sp" />
+
+    <FrameLayout
+        android:id="@+id/fl2"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
 </LinearLayout>
