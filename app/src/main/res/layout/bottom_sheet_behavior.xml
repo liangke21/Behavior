@@ -6,9 +6,8 @@
     android:layout_height="match_parent"
     android:background="#2C2CB8"
     android:orientation="vertical"
-    app:direction="left"
-    app:behavior_hideable="true"
-    app:behavior_peekHeight="50dp"
+    app:direction="right"
+    app:gb_peekHeight="50dp"
     app:layout_behavior="@string/global_behavior">
 
     <TextView

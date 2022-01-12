@@ -1,31 +1,69 @@
 package com.liangke.viewpoint.behavior
 
-import android.annotation.SuppressLint
 import android.content.Context
-import android.os.Parcel
-import android.os.Parcelable
 import android.util.AttributeSet
 import android.util.Log
 import android.view.View
-import androidx.annotation.IntDef
-import androidx.annotation.RestrictTo
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.ViewCompat
-import androidx.customview.view.AbsSavedState
 import com.liangke.viewpoint.R
+import com.liangke.viewpoint.enum.Direction
+import com.liangke.viewpoint.enum.Direction.*
 
 class GlobalBehavior<V : View> : CoordinatorLayout.Behavior<V> {
 
 
+    var direction = BOTTOM_SHEET
+
+
+    /**
+     * 父宽高
+     */
+    private var parentWidth = 0
+    private var parentHeight = 0
+
+    /**
+     * 子宽高
+     */
+    private var childHeight = 0
+    private var childWidth = 0
+
+    private var peekHeight = 0 //设置窥视高度
+
+    var collapsedOffset = 0 //折叠偏移
     constructor() : super()
 
-    constructor(context: Context?, attrs: AttributeSet?) : super(context, attrs) {
-        val a = context?.obtainStyledAttributes(attrs, R.styleable.GlobalBehavior)
-        val direction = a?.getInt(R.styleable.GlobalBehavior_direction, -1)
-        Log.d(TAG, direction.toString())
-        a?.recycle()
+    constructor(context: Context, attrs: AttributeSet) : super(context, attrs) {
+        val a = context.obtainStyledAttributes(attrs, R.styleable.GlobalBehavior)
+        val direction = a.getInt(R.styleable.GlobalBehavior_direction, 1)
+        setFoldDirection(Direction.values()[direction - 1])
+        val dimensionHeight = a.getDimension(R.styleable.GlobalBehavior_gb_peekHeight, -1F)
+        setPeekHeight(dimensionHeight)
+        a.recycle()
     }
 
+    private fun setPeekHeight(dimensionHeight: Float) {
+        peekHeight = dimensionHeight.toInt()
+    }
+
+
+    fun setFoldDirection(direction: Direction) {
+        when (direction) {
+            BOTTOM_SHEET -> {
+                this.direction = BOTTOM_SHEET
+            }
+            TOP_SHEET -> {
+                this.direction = TOP_SHEET
+            }
+            LEFT_SHEET -> {
+                this.direction = LEFT_SHEET
+            }
+            RIGHT_SHEET -> {
+                this.direction = RIGHT_SHEET
+            }
+        }
+        Log.d(TAG, this.direction.name)
+    }
 
     override fun onLayoutChild(parent: CoordinatorLayout, child: V, layoutDirection: Int): Boolean {
         if (ViewCompat.getFitsSystemWindows(parent) && !ViewCompat.getFitsSystemWindows(child)) {
@@ -40,13 +78,61 @@ class GlobalBehavior<V : View> : CoordinatorLayout.Behavior<V> {
 
         parent.onLayoutChild(child, layoutDirection)
 
-        ViewCompat.offsetLeftAndRight(child, 1030)
+        parentWidth = parent.width
+        parentHeight = parent.height
+
+        childWidth = child.width
+        childHeight = child.height
+
+        calculateCollapsedOffset()
+        handlingFoldOrientation(child)
+
         return true
     }
 
+    private fun calculateCollapsedOffset() {
+
+        collapsedOffset = when (direction) {
+            BOTTOM_SHEET -> {
+                Log.d(TAG,peekHeight.toString())
+                childHeight-peekHeight
+            }
+            TOP_SHEET -> {
+                -(childHeight-peekHeight)
+            }
+            LEFT_SHEET -> {
+                -(childWidth-peekHeight)
+            }
+            RIGHT_SHEET -> {
+                (childWidth-peekHeight)
+            }
+        }
+    }
+
+    /**
+     * 处理折叠方向
+     */
+    private fun handlingFoldOrientation(child: View) {
+        when (direction) {
+            BOTTOM_SHEET -> {
+               ViewCompat.offsetTopAndBottom(child,collapsedOffset)
+            }
+            TOP_SHEET -> {
+            ViewCompat.offsetTopAndBottom(child,collapsedOffset)
+            }
+            LEFT_SHEET -> {
+              ViewCompat.offsetLeftAndRight(child,collapsedOffset)
+            }
+            RIGHT_SHEET -> {
+               ViewCompat.offsetLeftAndRight(child,collapsedOffset)
+            }
+        }
+
+    }
 
     companion object {
         private const val TAG = "GlobalBehavior"
+
 
         /**
          * 获取与view关联的GlobalBehavior
@@ -59,42 +145,9 @@ class GlobalBehavior<V : View> : CoordinatorLayout.Behavior<V> {
 
             val behavior = params.behavior
             require(behavior is CoordinatorLayout.Behavior<*>) { "该视图与 GlobalBehavior无关" }
-            @Direction val a = TOP_SHEET
-            Log.d(TAG, " a $a  b $BOTTOM_SHEET")
+
             return behavior as GlobalBehavior
         }
-
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        @IntDef(
-            TOP_SHEET,
-            BOTTOM_SHEET,
-            LEFT_SHEET,
-            RIGHT_SHEET
-        )
-        @Retention(AnnotationRetention.SOURCE)
-        annotation class Direction
-
-        /**
-         * 顶部工作表
-         */
-        const val TOP_SHEET = 1
-
-        /**
-         * 底部工作表
-         */
-        const val BOTTOM_SHEET = 2
-
-        /**
-         * 左部工作表
-         */
-        const val LEFT_SHEET = 3
-
-        /**
-         * 右部工作表
-         */
-        const val RIGHT_SHEET = 4
-
-
     }
 
 }
