@@ -1,7 +1,7 @@
-package com.example.myBehavior
+package com.example.myBehavior.fragment
 
 import androidx.lifecycle.ViewModel
 
-class BlankViewModel : ViewModel() {
+class TopViewModel : ViewModel() {
     // TODO: Implement the ViewModel
 }

@@ -159,10 +159,7 @@ public class LogT {
 
     }
 
-    /**
-     * 获取类和方法名名称
-     * @return
-     */
+
     private static String getClassNameAndMethodName(){
         StackTraceElement[] elements = Thread.currentThread().getStackTrace();
         for (StackTraceElement ste : elements) {

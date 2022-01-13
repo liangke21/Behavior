@@ -31,6 +31,7 @@ class GlobalBehavior<V : View> : CoordinatorLayout.Behavior<V> {
     private var peekHeight = 0 //设置窥视高度
 
     var collapsedOffset = 0 //折叠偏移
+
     constructor() : super()
 
     constructor(context: Context, attrs: AttributeSet) : super(context, attrs) {
@@ -94,17 +95,17 @@ class GlobalBehavior<V : View> : CoordinatorLayout.Behavior<V> {
 
         collapsedOffset = when (direction) {
             BOTTOM_SHEET -> {
-                Log.d(TAG,peekHeight.toString())
-                childHeight-peekHeight
+                Log.d(TAG, peekHeight.toString())
+                childHeight - peekHeight
             }
             TOP_SHEET -> {
-                -(childHeight-peekHeight)
+                -(childHeight - peekHeight)
             }
             LEFT_SHEET -> {
-                -(childWidth-peekHeight)
+                -(childWidth - peekHeight)
             }
             RIGHT_SHEET -> {
-                (childWidth-peekHeight)
+                (childWidth - peekHeight)
             }
         }
     }
@@ -115,16 +116,16 @@ class GlobalBehavior<V : View> : CoordinatorLayout.Behavior<V> {
     private fun handlingFoldOrientation(child: View) {
         when (direction) {
             BOTTOM_SHEET -> {
-               ViewCompat.offsetTopAndBottom(child,collapsedOffset)
+                ViewCompat.offsetTopAndBottom(child, collapsedOffset)
             }
             TOP_SHEET -> {
-            ViewCompat.offsetTopAndBottom(child,collapsedOffset)
+                ViewCompat.offsetTopAndBottom(child, collapsedOffset)
             }
             LEFT_SHEET -> {
-              ViewCompat.offsetLeftAndRight(child,collapsedOffset)
+                ViewCompat.offsetLeftAndRight(child, collapsedOffset)
             }
             RIGHT_SHEET -> {
-               ViewCompat.offsetLeftAndRight(child,collapsedOffset)
+                ViewCompat.offsetLeftAndRight(child, collapsedOffset)
             }
         }
 
@@ -148,6 +149,18 @@ class GlobalBehavior<V : View> : CoordinatorLayout.Behavior<V> {
 
             return behavior as GlobalBehavior
         }
+
+        /** 工作表已展开。  */
+        const val STATE_EXPANDED = 1
+
+        /** 工作表已折叠  */
+        const val STATE_COLLAPSED = 2
+
+        /** 工作表被隐藏。  */
+        const val STATE_HIDDEN = 3
+
+        /** 左表是半展开的（当 mFitToContents 为 false 时使用）。  */
+        const val STATE_HALF_EXPANDED = 4
     }
 
 }

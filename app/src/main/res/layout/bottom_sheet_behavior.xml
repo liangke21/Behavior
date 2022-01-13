@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="#2C2CB8"
     android:orientation="vertical"
-    app:direction="right"
+    app:direction="left"
     app:gb_peekHeight="50dp"
     app:layout_behavior="@string/global_behavior">
 

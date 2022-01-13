@@ -3,10 +3,14 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
-        <entry key="..\:/AndroidStudioProjects/MyBehavior/app/src/main/res/layout/activity_main.xml" value="0.1" />
+        <entry key="..\:/AndroidStudioProjects/MyBehavior/app/src/main/res/layout/activity_main.xml" value="0.15" />
         <entry key="..\:/AndroidStudioProjects/MyBehavior/app/src/main/res/layout/blank_fragment.xml" value="0.36614583333333334" />
+        <entry key="..\:/AndroidStudioProjects/MyBehavior/app/src/main/res/layout/bottom_fragment.xml" value="0.16354166666666667" />
         <entry key="..\:/AndroidStudioProjects/MyBehavior/app/src/main/res/layout/bottom_sheet_behavior.xml" value="0.1" />
         <entry key="..\:/AndroidStudioProjects/MyBehavior/app/src/main/res/layout/layout_bottom_navigation_view.xml" value="0.291213768115942" />
+        <entry key="..\:/AndroidStudioProjects/MyBehavior/app/src/main/res/layout/letf_fragment.xml" value="0.36614583333333334" />
+        <entry key="..\:/AndroidStudioProjects/MyBehavior/app/src/main/res/layout/right_fragment.xml" value="0.36614583333333334" />
+        <entry key="..\:/AndroidStudioProjects/MyBehavior/app/src/main/res/layout/top_fragment.xml" value="0.1" />
       </map>
     </option>
   </component>
@@ -16,6 +20,10 @@
     </list>
   </component>
   <component name="ExternalStorageConfigurationManager" enabled="true" />
+  <component name="JavadocGenerationManager">
+    <option name="OUTPUT_DIRECTORY" value="D:/Desktop/555" />
+    <option name="OPTION_SCOPE" value="private" />
+  </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_11" project-jdk-name="Android Studio default JDK" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>

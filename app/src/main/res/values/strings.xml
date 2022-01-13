@@ -2,5 +2,13 @@
     <string name="app_name">My Behavior</string>
 
     <string description="无障碍服务的用户可以执行的操作的描述，以将底部页面展开到其全高的一半。 [CHAR LIMIT=25]" name="leftsheet_action_expand_halfway">展开一半</string>
+    <string name="name1">向上滑动</string>
+    <string name="name2">向下滑动</string>
+    <string name="name3">向左滑动</string>
+    <string name="name4">向右滑动</string>
+    <string name="top_button1">展开</string>
+    <string name="top_button2">折叠</string>
+    <string name="top_button3">半展开</string>
+    <string name="top_button4">隐藏</string>
 
 </resources>
