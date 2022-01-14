@@ -42,6 +42,9 @@ class GlobalBehavior<V : View> : CoordinatorLayout.Behavior<V> {
     var viewDragHelper: ViewDragHelper? = null //查看拖动助手
     private var settleRunnable: SettleRunnable? = null //解决 Runnable
 
+    private var isHideInvalidCollapsed = true//隐藏状态时折叠状态是否失效
+    private var state: State = STATE_EXPANDED //状态
+
     constructor() : super()
 
     constructor(context: Context, attrs: AttributeSet) : super(context, attrs) {
@@ -117,7 +120,6 @@ class GlobalBehavior<V : View> : CoordinatorLayout.Behavior<V> {
 
         collapsedOffset = when (direction) {
             BOTTOM_SHEET -> {
-                Log.d(TAG, peekHeight.toString())
                 childHeight - peekHeight
             }
             TOP_SHEET -> {
@@ -172,20 +174,18 @@ class GlobalBehavior<V : View> : CoordinatorLayout.Behavior<V> {
         setTleToState(child, state)
     }
 
-    private var isHideInvalidCollapsed = true
-    private var state: State = STATE_EXPANDED
-    fun setTleToState(child: View, state: State) {
+    private fun setTleToState(child: View, state: State) {
         var swipeDirection = 0
         swipeDirection = when (state) {
             STATE_EXPANDED -> {
                 if (direction == TOP_SHEET) {
                     collapsedOffset + (childHeight - peekHeight)
                 } else if (direction == BOTTOM_SHEET) {
-                    collapsedOffset-(childHeight - peekHeight)
+                    collapsedOffset - (childHeight - peekHeight)
                 } else if (direction == LEFT_SHEET) {
-                    collapsedOffset
+                    collapsedOffset + (childWidth - peekHeight)
                 } else {
-                    collapsedOffset
+                    collapsedOffset - (childWidth - peekHeight)
                 }
             }
             STATE_COLLAPSED -> {
@@ -206,11 +206,11 @@ class GlobalBehavior<V : View> : CoordinatorLayout.Behavior<V> {
                 if (direction == TOP_SHEET) {
                     collapsedOffset - peekHeight
                 } else if (direction == BOTTOM_SHEET) {
-                    collapsedOffset+peekHeight
+                    collapsedOffset + peekHeight
                 } else if (direction == LEFT_SHEET) {
-                    collapsedOffset
+                    collapsedOffset - peekHeight
                 } else {
-                    collapsedOffset
+                    collapsedOffset + peekHeight
                 }
             }
             STATE_HALF_EXPANDED -> {
@@ -219,9 +219,9 @@ class GlobalBehavior<V : View> : CoordinatorLayout.Behavior<V> {
                 } else if (direction == BOTTOM_SHEET) {
                     collapsedOffset - (childHeight / 2 - peekHeight)
                 } else if (direction == LEFT_SHEET) {
-                    collapsedOffset + childWidth / 2
+                    collapsedOffset + (childWidth / 2 - peekHeight)
                 } else {
-                    collapsedOffset - childWidth / 2
+                    collapsedOffset - (childWidth / 2 - peekHeight)
                 }
 
             }
@@ -279,8 +279,16 @@ class GlobalBehavior<V : View> : CoordinatorLayout.Behavior<V> {
      */
     private fun startSettlingAnimation(child: View, state: State, swipeDirection: Int, b: Boolean) {
         val startedSettling = (viewDragHelper != null
-
-                && if (b) viewDragHelper!!.settleCapturedViewAt(child.left, swipeDirection) else viewDragHelper!!.smoothSlideViewTo(child, child.left, swipeDirection))
+                &&
+                if (b) {
+                    viewDragHelper!!.settleCapturedViewAt(child.left, swipeDirection)
+                } else {
+                    if (direction == RIGHT_SHEET || direction == LEFT_SHEET) {
+                        viewDragHelper!!.smoothSlideViewTo(child, swipeDirection, child.top)
+                    } else {
+                        viewDragHelper!!.smoothSlideViewTo(child, child.left, swipeDirection)
+                    }
+                })
 
         Log.d(TAG, "动画是否通过 $startedSettling   偏移房方向 $swipeDirection  合适类容 $collapsedOffset")
 

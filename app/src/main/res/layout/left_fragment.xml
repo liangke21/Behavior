@@ -5,11 +5,11 @@
     android:id="@+id/frameLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/design_dark_default_color_on_surface"
+    android:background="@color/design_dark_default_color_error"
     tools:context=".fragment.TopFragment">
 
     <Button
-        android:id="@+id/right_button1"
+        android:id="@+id/left_button1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="132dp"
@@ -20,42 +20,42 @@
         tools:ignore="DuplicateSpeakableTextCheck" />
 
     <Button
-        android:id="@+id/right_button2"
+        android:id="@+id/left_button2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="2dp"
         android:layout_marginTop="76dp"
         android:text="@string/top_button2"
-        app:layout_constraintStart_toStartOf="@+id/right_button1"
-        app:layout_constraintTop_toBottomOf="@+id/right_button1"
+        app:layout_constraintStart_toStartOf="@+id/left_button1"
+        app:layout_constraintTop_toBottomOf="@+id/left_button1"
         tools:ignore="DuplicateSpeakableTextCheck" />
 
     <Button
-        android:id="@+id/right_button3"
+        android:id="@+id/left_button3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="88dp"
         android:text="@string/top_button3"
-        app:layout_constraintStart_toStartOf="@+id/right_button2"
-        app:layout_constraintTop_toBottomOf="@+id/right_button2"
+        app:layout_constraintStart_toStartOf="@+id/left_button2"
+        app:layout_constraintTop_toBottomOf="@+id/left_button2"
         tools:ignore="DuplicateSpeakableTextCheck" />
 
     <Button
-        android:id="@+id/right_button4"
+        android:id="@+id/left_button4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="76dp"
         android:text="@string/top_button4"
-        app:layout_constraintEnd_toEndOf="@+id/right_button3"
-        app:layout_constraintStart_toStartOf="@+id/right_button3"
-        app:layout_constraintTop_toBottomOf="@+id/right_button3" />
+        app:layout_constraintEnd_toEndOf="@+id/left_button3"
+        app:layout_constraintStart_toStartOf="@+id/left_button3"
+        app:layout_constraintTop_toBottomOf="@+id/left_button3" />
 
     <androidx.constraintlayout.widget.Barrier
         android:id="@+id/barrier2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:barrierDirection="left"
-        app:constraint_referenced_ids="right_button1"
+        app:constraint_referenced_ids="left_button1"
         tools:layout_editor_absoluteX="178dp" />
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout

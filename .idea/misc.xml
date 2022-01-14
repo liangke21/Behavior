@@ -3,14 +3,15 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
-        <entry key="..\:/AndroidStudioProjects/MyBehavior/app/src/main/res/layout/activity_main.xml" value="0.15" />
+        <entry key="..\:/AndroidStudioProjects/MyBehavior/app/src/main/res/layout/activity_main.xml" value="0.33" />
         <entry key="..\:/AndroidStudioProjects/MyBehavior/app/src/main/res/layout/blank_fragment.xml" value="0.36614583333333334" />
         <entry key="..\:/AndroidStudioProjects/MyBehavior/app/src/main/res/layout/bottom_fragment.xml" value="0.1" />
         <entry key="..\:/AndroidStudioProjects/MyBehavior/app/src/main/res/layout/bottom_sheet_behavior.xml" value="0.1" />
         <entry key="..\:/AndroidStudioProjects/MyBehavior/app/src/main/res/layout/bottom_sheet_behavior2.xml" value="0.21770833333333334" />
         <entry key="..\:/AndroidStudioProjects/MyBehavior/app/src/main/res/layout/dd.xml" value="0.21770833333333334" />
         <entry key="..\:/AndroidStudioProjects/MyBehavior/app/src/main/res/layout/layout_bottom_navigation_view.xml" value="0.291213768115942" />
-        <entry key="..\:/AndroidStudioProjects/MyBehavior/app/src/main/res/layout/letf_fragment.xml" value="0.36614583333333334" />
+        <entry key="..\:/AndroidStudioProjects/MyBehavior/app/src/main/res/layout/left_fragment.xml" value="0.36614583333333334" />
+        <entry key="..\:/AndroidStudioProjects/MyBehavior/app/src/main/res/layout/letf_fragment.xml" value="0.1" />
         <entry key="..\:/AndroidStudioProjects/MyBehavior/app/src/main/res/layout/right_fragment.xml" value="0.36614583333333334" />
         <entry key="..\:/AndroidStudioProjects/MyBehavior/app/src/main/res/layout/top_fragment.xml" value="0.1" />
       </map>

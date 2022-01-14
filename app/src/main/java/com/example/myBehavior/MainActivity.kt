@@ -8,6 +8,8 @@ import android.view.KeyEvent
 import android.widget.Button
 import com.example.myBehavior.databinding.ActivityMainBinding
 import com.example.myBehavior.fragment.BottomFragment
+import com.example.myBehavior.fragment.LeftFragment
+import com.example.myBehavior.fragment.RightFragment
 import com.example.myBehavior.fragment.TopFragment
 import com.liangke.viewpoint.behavior.GlobalBehavior
 
@@ -18,18 +20,10 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var tagFragment: String
 
-    @SuppressLint("WrongConstant")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        //val bi = LeftSheetBehavior.from(findViewById(R.id.sheet))
-        //   val bi = MyButtomSheetBehavior.from(findViewById(R.id.sheet))
-        //  val bi = MyBehavior.from(findViewById(R.id.sheet))
-
-        //bi.setFoldDirection(Direction.TOP_SHEET)
-
 
         binding.button1.setOnClickListener {
             tagFragment = BottomFragment.TAG
@@ -43,10 +37,14 @@ class MainActivity : AppCompatActivity() {
                 .add(binding.fl.id, TopFragment.newInstance(), tagFragment).commit()
         }
         binding.button3.setOnClickListener {
-            //  bi.setState(STATE_HALF_EXPANDED)
+            tagFragment = LeftFragment.TAG
+            supportFragmentManager.beginTransaction().setCustomAnimations(R.anim.translate_right_enter, R.anim.translate_right_exit)
+                .add(binding.fl.id, LeftFragment.newInstance(), tagFragment).commit()
         }
         binding.button4.setOnClickListener {
-            //  bi.setState(STATE_HALF_EXPANDED)
+            tagFragment = RightFragment.TAG
+            supportFragmentManager.beginTransaction().setCustomAnimations(R.anim.translate_right_enter, R.anim.translate_right_exit)
+                .add(binding.fl.id, RightFragment.newInstance(), tagFragment).commit()
         }
     }
 

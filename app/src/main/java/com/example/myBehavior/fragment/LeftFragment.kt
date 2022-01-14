@@ -1,43 +1,41 @@
 package com.example.myBehavior.fragment
 
-import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.example.myBehavior.R
 import com.example.myBehavior.databinding.LeftFragmentBinding
-import com.example.myBehavior.databinding.RightFragmentBinding
 import com.liangke.viewpoint.behavior.GlobalBehavior
 import com.liangke.viewpoint.enum.Direction
 import com.liangke.viewpoint.enum.State
 
-class RightFragment : Fragment() {
-   private lateinit var binding: RightFragmentBinding
+class LeftFragment : Fragment() {
+private lateinit var binding: LeftFragmentBinding
     companion object {
-        const val TAG = "RightFragment"
-        fun newInstance() = RightFragment()
+        const val TAG = "LeftFragment"
+        fun newInstance() = LeftFragment()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        binding = RightFragmentBinding.inflate(layoutInflater, container, false)
+        binding = LeftFragmentBinding.inflate(layoutInflater, container, false)
 
         val bi = GlobalBehavior.since(binding.sheet.sheet)
-        bi.setFoldDirection(Direction.RIGHT_SHEET)
-        binding.rightButton1.setOnClickListener {
+        bi.setFoldDirection(Direction.LEFT_SHEET)
+        binding.leftButton1.setOnClickListener {
             bi.setState(State.STATE_EXPANDED)
         }
-        binding.rightButton2.setOnClickListener {
+        binding.leftButton2.setOnClickListener {
             bi.setState(State.STATE_COLLAPSED)
         }
-        binding.rightButton3.setOnClickListener {
+        binding.leftButton3.setOnClickListener {
             bi.setState(State.STATE_HALF_EXPANDED)
         }
-        binding.rightButton4.setOnClickListener {
+        binding.leftButton4.setOnClickListener {
             bi.setState(State.STATE_HIDDEN)
         }
         return binding.root
     }
+
 
 }
