@@ -42,4 +42,13 @@ class TopFragment : Fragment() {
         }
         return binding.root
     }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        view.setOnTouchListener { v, _ ->
+            //在这里面拦截点击事件,并进行相应的操作
+            v.performClick()
+            true
+        }
+    }
 }

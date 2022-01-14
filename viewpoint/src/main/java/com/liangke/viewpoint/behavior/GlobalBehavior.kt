@@ -56,7 +56,7 @@ class GlobalBehavior<V : View> : CoordinatorLayout.Behavior<V> {
         a.recycle()
     }
 
-    private fun setPeekHeight(dimensionHeight: Float) {
+    fun setPeekHeight(dimensionHeight: Float) {
         peekHeight = dimensionHeight.toInt()
     }
 

@@ -1,11 +1,16 @@
 package com.example.myBehavior
 
 import android.annotation.SuppressLint
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.KeyEvent
+import android.view.MotionEvent
+import android.view.View
+import android.view.View.*
 import android.widget.Button
+import androidx.annotation.RequiresApi
 import com.example.myBehavior.databinding.ActivityMainBinding
 import com.example.myBehavior.fragment.BottomFragment
 import com.example.myBehavior.fragment.LeftFragment
@@ -20,6 +25,8 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var tagFragment: String
 
+    @SuppressLint("ClickableViewAccessibility")
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)

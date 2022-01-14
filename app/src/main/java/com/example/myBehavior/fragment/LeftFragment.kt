@@ -1,5 +1,6 @@
 package com.example.myBehavior.fragment
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -11,7 +12,8 @@ import com.liangke.viewpoint.enum.Direction
 import com.liangke.viewpoint.enum.State
 
 class LeftFragment : Fragment() {
-private lateinit var binding: LeftFragmentBinding
+    private lateinit var binding: LeftFragmentBinding
+
     companion object {
         const val TAG = "LeftFragment"
         fun newInstance() = LeftFragment()
@@ -35,6 +37,16 @@ private lateinit var binding: LeftFragmentBinding
             bi.setState(State.STATE_HIDDEN)
         }
         return binding.root
+    }
+
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        view.setOnTouchListener { v, _ ->
+            //在这里面拦截点击事件,并进行相应的操作
+            v.performClick()
+            true
+        }
     }
 
 
