@@ -10,12 +10,13 @@ import com.example.myBehavior.R
 import com.example.myBehavior.databinding.TopFragmentBinding
 import com.liangke.viewpoint.behavior.GlobalBehavior
 import com.liangke.viewpoint.enum.Direction
+import com.liangke.viewpoint.enum.State.*
 
 class TopFragment : Fragment() {
     private lateinit var binding: TopFragmentBinding
 
     companion object {
-        private val TAG = TopFragment::class.java.canonicalName
+        const val TAG = "TopFragment"
         fun newInstance() = TopFragment()
     }
 
@@ -27,7 +28,17 @@ class TopFragment : Fragment() {
         val bi = GlobalBehavior.since(binding.sheet.sheet)
         bi.setFoldDirection(Direction.TOP_SHEET)
         binding.topButton1.setOnClickListener {
+            bi.setState(STATE_EXPANDED)
+        }
 
+        binding.topButton2.setOnClickListener {
+            bi.setState(STATE_COLLAPSED)
+        }
+        binding.topButton3.setOnClickListener {
+            bi.setState(STATE_HALF_EXPANDED)
+        }
+        binding.topButton4.setOnClickListener {
+            bi.setState(STATE_HIDDEN)
         }
         return binding.root
     }

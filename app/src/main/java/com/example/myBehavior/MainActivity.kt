@@ -7,6 +7,7 @@ import android.util.Log
 import android.view.KeyEvent
 import android.widget.Button
 import com.example.myBehavior.databinding.ActivityMainBinding
+import com.example.myBehavior.fragment.BottomFragment
 import com.example.myBehavior.fragment.TopFragment
 import com.liangke.viewpoint.behavior.GlobalBehavior
 
@@ -15,7 +16,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
 
-    private val topFragment = TopFragment.newInstance()
+    private lateinit var tagFragment: String
 
     @SuppressLint("WrongConstant")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,14 +32,15 @@ class MainActivity : AppCompatActivity() {
 
 
         binding.button1.setOnClickListener {
+            tagFragment = BottomFragment.TAG
             supportFragmentManager.beginTransaction().setCustomAnimations(R.anim.translate_right_enter, R.anim.translate_right_exit)
-                .add(binding.fl.id, topFragment, "tag").commit()
-
-
+                .add(binding.fl.id, BottomFragment.newInstance(), tagFragment).commit()
         }
 
         binding.button2.setOnClickListener {
-            //  bi.setState(STATE_HALF_EXPANDED)
+            tagFragment = TopFragment.TAG
+            supportFragmentManager.beginTransaction().setCustomAnimations(R.anim.translate_right_enter, R.anim.translate_right_exit)
+                .add(binding.fl.id, TopFragment.newInstance(), tagFragment).commit()
         }
         binding.button3.setOnClickListener {
             //  bi.setState(STATE_HALF_EXPANDED)
@@ -51,7 +53,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         if (event?.keyCode == KeyEvent.KEYCODE_BACK) {
-            val fragment = supportFragmentManager.findFragmentByTag("tag")
+            val fragment = supportFragmentManager.findFragmentByTag(tagFragment)
             fragment?.let {
                 supportFragmentManager.beginTransaction()
                     .setCustomAnimations(R.anim.translate_right_enter, R.anim.translate_right_exit)

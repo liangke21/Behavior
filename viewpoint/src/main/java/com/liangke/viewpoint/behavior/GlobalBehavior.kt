@@ -6,9 +6,14 @@ import android.util.Log
 import android.view.View
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.ViewCompat
+import androidx.customview.widget.ViewDragHelper
 import com.liangke.viewpoint.R
 import com.liangke.viewpoint.enum.Direction
 import com.liangke.viewpoint.enum.Direction.*
+import com.liangke.viewpoint.enum.State
+import com.liangke.viewpoint.enum.State.*
+import java.lang.ref.WeakReference
+import kotlin.math.abs
 
 class GlobalBehavior<V : View> : CoordinatorLayout.Behavior<V> {
 
@@ -31,6 +36,11 @@ class GlobalBehavior<V : View> : CoordinatorLayout.Behavior<V> {
     private var peekHeight = 0 //设置窥视高度
 
     var collapsedOffset = 0 //折叠偏移
+
+    private var _viewRef: WeakReference<V>? = null
+    private val viewRef get() = _viewRef!!
+    var viewDragHelper: ViewDragHelper? = null //查看拖动助手
+    private var settleRunnable: SettleRunnable? = null //解决 Runnable
 
     constructor() : super()
 
@@ -66,15 +76,27 @@ class GlobalBehavior<V : View> : CoordinatorLayout.Behavior<V> {
         Log.d(TAG, this.direction.name)
     }
 
+    override fun onAttachedToLayoutParams(params: CoordinatorLayout.LayoutParams) {
+        super.onAttachedToLayoutParams(params)
+        _viewRef = null
+        viewDragHelper = null
+    }
+
     override fun onLayoutChild(parent: CoordinatorLayout, child: V, layoutDirection: Int): Boolean {
         if (ViewCompat.getFitsSystemWindows(parent) && !ViewCompat.getFitsSystemWindows(child)) {
             child.fitsSystemWindows = true
+        }
+        if (_viewRef == null) {
+            _viewRef = WeakReference(child)
         }
 
         if (ViewCompat.getImportantForAccessibility(child)
             == ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_AUTO
         ) {
             ViewCompat.setImportantForAccessibility(child, ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES)
+        }
+        if (viewDragHelper == null) {
+            viewDragHelper = ViewDragHelper.create(parent, dragCallback)
         }
 
         parent.onLayoutChild(child, layoutDirection)
@@ -131,6 +153,91 @@ class GlobalBehavior<V : View> : CoordinatorLayout.Behavior<V> {
 
     }
 
+    /**
+     * 当进入隐藏状态是否失效  [State]== STATE_COLLAPSED 状态
+     * 默认为 失效 true
+     * @param b Boolean
+     */
+    fun setHideInvalidCollapsed(b: Boolean) {
+        isHideInvalidCollapsed = b
+    }
+
+    /**
+     * 设置状态
+     * @param state State
+     */
+    fun setState(state: State) {
+        val child = viewRef.get() ?: return
+        Log.d(TAG, "setState")
+        setTleToState(child, state)
+    }
+
+    private var isHideInvalidCollapsed = true
+    private var state: State = STATE_EXPANDED
+    fun setTleToState(child: View, state: State) {
+        var swipeDirection = 0
+        swipeDirection = when (state) {
+            STATE_EXPANDED -> {
+                if (direction == TOP_SHEET) {
+                    collapsedOffset + (childHeight - peekHeight)
+                } else if (direction == BOTTOM_SHEET) {
+                    collapsedOffset-(childHeight - peekHeight)
+                } else if (direction == LEFT_SHEET) {
+                    collapsedOffset
+                } else {
+                    collapsedOffset
+                }
+            }
+            STATE_COLLAPSED -> {
+                if (this.state == STATE_HIDDEN && isHideInvalidCollapsed) {
+                    return
+                }
+                if (direction == TOP_SHEET) {
+                    collapsedOffset
+                } else if (direction == BOTTOM_SHEET) {
+                    collapsedOffset
+                } else if (direction == LEFT_SHEET) {
+                    collapsedOffset
+                } else {
+                    collapsedOffset
+                }
+            }
+            STATE_HIDDEN -> {
+                if (direction == TOP_SHEET) {
+                    collapsedOffset - peekHeight
+                } else if (direction == BOTTOM_SHEET) {
+                    collapsedOffset+peekHeight
+                } else if (direction == LEFT_SHEET) {
+                    collapsedOffset
+                } else {
+                    collapsedOffset
+                }
+            }
+            STATE_HALF_EXPANDED -> {
+                if (direction == TOP_SHEET) {
+                    collapsedOffset + (childHeight / 2 - peekHeight)
+                } else if (direction == BOTTOM_SHEET) {
+                    collapsedOffset - (childHeight / 2 - peekHeight)
+                } else if (direction == LEFT_SHEET) {
+                    collapsedOffset + childWidth / 2
+                } else {
+                    collapsedOffset - childWidth / 2
+                }
+
+            }
+        }
+        this.state = state
+        Log.d(TAG, "swipeDirection $swipeDirection")
+        startSettlingAnimation(child, state, swipeDirection, false)
+    }
+
+
+    private val dragCallback = object : ViewDragHelper.Callback() {
+        override fun tryCaptureView(child: View, pointerId: Int): Boolean {
+            TODO("Not yet implemented")
+        }
+    }
+
     companion object {
         private const val TAG = "GlobalBehavior"
 
@@ -150,17 +257,39 @@ class GlobalBehavior<V : View> : CoordinatorLayout.Behavior<V> {
             return behavior as GlobalBehavior
         }
 
-        /** 工作表已展开。  */
-        const val STATE_EXPANDED = 1
-
-        /** 工作表已折叠  */
-        const val STATE_COLLAPSED = 2
-
-        /** 工作表被隐藏。  */
-        const val STATE_HIDDEN = 3
-
-        /** 左表是半展开的（当 mFitToContents 为 false 时使用）。  */
-        const val STATE_HALF_EXPANDED = 4
     }
 
+    private inner class SettleRunnable(private val view: View) : Runnable {
+
+        var isPosted = false
+        override fun run() {
+            if (viewDragHelper!!.continueSettling(true)) {
+                ViewCompat.postOnAnimation(view, this)
+            }
+            isPosted = false
+        }
+    }
+
+    /**
+     * 稳定动画
+     * @param child View
+     * @param state State
+     * @param swipeDirection Int
+     * @param b Boolean
+     */
+    private fun startSettlingAnimation(child: View, state: State, swipeDirection: Int, b: Boolean) {
+        val startedSettling = (viewDragHelper != null
+
+                && if (b) viewDragHelper!!.settleCapturedViewAt(child.left, swipeDirection) else viewDragHelper!!.smoothSlideViewTo(child, child.left, swipeDirection))
+
+        Log.d(TAG, "动画是否通过 $startedSettling   偏移房方向 $swipeDirection  合适类容 $collapsedOffset")
+
+        if (settleRunnable == null) {
+            settleRunnable = SettleRunnable(child)
+        }
+        if (!settleRunnable!!.isPosted) {
+            ViewCompat.postOnAnimation(child, settleRunnable!!)
+            settleRunnable!!.isPosted = true
+        }
+    }
 }
