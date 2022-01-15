@@ -3,7 +3,7 @@ package com.liangke.viewpoint.behavior
 import android.content.Context
 import android.util.AttributeSet
 import android.util.Log
-import android.view.View
+import android.view.*
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.ViewCompat
 import androidx.customview.widget.ViewDragHelper
@@ -18,6 +18,8 @@ import kotlin.math.abs
 class GlobalBehavior<V : View> : CoordinatorLayout.Behavior<V> {
 
 
+
+    private var ignoreEvents = false
     var direction = BOTTOM_SHEET
 
 
@@ -44,7 +46,15 @@ class GlobalBehavior<V : View> : CoordinatorLayout.Behavior<V> {
 
     private var isHideInvalidCollapsed = true//隐藏状态时折叠状态是否失效
     private var state: State = STATE_EXPANDED //状态
+    private var initialY = 0 //初始化y
+    private var initialX = 0 //初始化X
+    private var touchingScrollingChild = false//触摸滚动的子布局
+    var nestedScrollingChildRef: WeakReference<View>? = null //嵌套滚动子引用
+    private var draggable = true //可拖动的
+    private var activePointerId = 0//活动指针
 
+    private var velocityTracker: VelocityTracker? = null//速度追踪器
+    private var maximumVelocity = 0f
     constructor() : super()
 
     constructor(context: Context, attrs: AttributeSet) : super(context, attrs) {
@@ -53,9 +63,20 @@ class GlobalBehavior<V : View> : CoordinatorLayout.Behavior<V> {
         setFoldDirection(Direction.values()[direction - 1])
         val dimensionHeight = a.getDimension(R.styleable.GlobalBehavior_gb_peekHeight, -1F)
         setPeekHeight(dimensionHeight)
+        setDraggable(a.getBoolean(R.styleable.GlobalBehavior_gb_draggable, true))
         a.recycle()
+        val configuration = ViewConfiguration.get(context)
+        maximumVelocity = configuration.scaledMaximumFlingVelocity.toFloat()
     }
 
+    fun setDraggable(b: Boolean) {
+        this.draggable = b
+    }
+
+    /**
+     * 设置窥视高度
+     * @param dimensionHeight Float
+     */
     fun setPeekHeight(dimensionHeight: Float) {
         peekHeight = dimensionHeight.toInt()
     }
@@ -99,7 +120,7 @@ class GlobalBehavior<V : View> : CoordinatorLayout.Behavior<V> {
             ViewCompat.setImportantForAccessibility(child, ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES)
         }
         if (viewDragHelper == null) {
-            viewDragHelper = ViewDragHelper.create(parent, dragCallback)
+           viewDragHelper = ViewDragHelper.create(parent, dragCallback)
         }
 
         parent.onLayoutChild(child, layoutDirection)
@@ -110,11 +131,144 @@ class GlobalBehavior<V : View> : CoordinatorLayout.Behavior<V> {
         childWidth = child.width
         childHeight = child.height
 
+        Log.d(TAG, "parentWidth $parentWidth parentHeight $parentHeight childWidth $childWidth childHeight $childHeight")
         calculateCollapsedOffset()
         handlingFoldOrientation(child)
-
+        nestedScrollingChildRef = WeakReference<View>(findScrollingChild(child))
         return true
     }
+
+    /**
+     * 找到滚动的孩子
+     * @param view View?
+     * @return View?
+     */
+    fun findScrollingChild(view: View?): View? {
+        if (ViewCompat.isNestedScrollingEnabled(view!!)) {
+            return view
+        }
+        if (view is ViewGroup) {
+            var i = 0
+            val count = view.childCount
+            while (i < count) {
+                val scrollingChild = findScrollingChild(view.getChildAt(i))
+                if (scrollingChild != null) {
+                    return scrollingChild
+                }
+                i++
+            }
+        }
+        return null
+    }
+
+    override fun onInterceptTouchEvent(parent: CoordinatorLayout, child: V, ev: MotionEvent): Boolean {
+        if (!child.isShown || !draggable) {
+            return false
+        }
+        val action: Int = ev.actionMasked
+        if (action == MotionEvent.ACTION_DOWN) { //按下
+            reset()
+        }
+        if (velocityTracker == null) {
+            velocityTracker = VelocityTracker.obtain()
+        }
+        velocityTracker?.addMovement(ev)
+        when (action) {
+
+
+            MotionEvent.ACTION_CANCEL, MotionEvent.ACTION_UP -> {
+                Log.v(TAG, "onInterceptTouchEvent ACTION_CANCEL")
+                touchingScrollingChild = false
+                activePointerId = MotionEvent.INVALID_POINTER_ID
+                if (ignoreEvents) {
+                    ignoreEvents = false
+
+                    return false
+                }
+            }
+            MotionEvent.ACTION_DOWN -> {
+
+                initialY = ev.y.toInt()
+                initialX = ev.x.toInt()
+                val scrollingChild = if (nestedScrollingChildRef != null) nestedScrollingChildRef!!.get() else null
+                if (scrollingChild != null && parent.isPointInChildBounds(scrollingChild, initialX, initialY)) {
+                    activePointerId = ev.getPointerId(ev.actionIndex)
+                    touchingScrollingChild = true
+                }
+                ignoreEvents = (activePointerId == MotionEvent.INVALID_POINTER_ID
+                        && !parent.isPointInChildBounds(child, initialX, initialY))
+                Log.v(TAG, "onInterceptTouchEvent ACTION_DOWN  $ignoreEvents")
+            }
+        }
+        if (!ignoreEvents && viewDragHelper!!.shouldInterceptTouchEvent(ev)) {
+            Log.d(TAG, "onInterceptTouchEvent")
+            return true
+        }
+        val scroll = if (nestedScrollingChildRef != null) nestedScrollingChildRef!!.get() else null
+val b=(action == MotionEvent.ACTION_MOVE && scroll != null && !ignoreEvents
+        && !parent.isPointInChildBounds(scroll, ev.x.toInt(), ev.y.toInt())
+        && viewDragHelper != null && Math.abs(initialY - ev.getY()) > viewDragHelper!!.touchSlop)
+        Log.v(TAG, "onInterceptTouchEventddddddddddddddddddd $b")
+        return b
+
+    }
+
+    override fun onTouchEvent(parent: CoordinatorLayout, child: V, ev: MotionEvent): Boolean {
+        Log.v(TAG, "onTouchEvent")
+        if (!child.isShown) {
+            return false
+        }
+        Log.v(TAG, "onTouchEvent")
+        val action: Int = ev.actionMasked
+
+        viewDragHelper?.processTouchEvent(ev)
+
+        if (action == MotionEvent.ACTION_DOWN) {
+            reset()
+        }
+        if (velocityTracker == null) {
+            velocityTracker = VelocityTracker.obtain()
+        }
+        velocityTracker!!.addMovement(ev)
+
+Log.d("onTouchEvent ", "${viewDragHelper != null} ${action == MotionEvent.ACTION_MOVE } ${!ignoreEvents} ")
+
+        if (viewDragHelper != null && action == MotionEvent.ACTION_MOVE && !ignoreEvents) {
+            Log.e(TAG, "onTouchEvent1")
+            minimalDrag(ev.x, ev.y) {
+                viewDragHelper!!.captureChildView(child, ev.getPointerId(ev.actionIndex))
+            }
+        }
+
+        return !ignoreEvents
+    }
+
+    private fun getYVelocity(): Float {
+        if (velocityTracker == null) {
+            return 0f
+        }
+        velocityTracker!!.computeCurrentVelocity(1000, maximumVelocity)
+        return velocityTracker!!.getYVelocity(activePointerId)
+    }
+
+    private fun reset() {
+        activePointerId = ViewDragHelper.INVALID_POINTER
+        if (velocityTracker != null) {
+            velocityTracker!!.recycle()
+            velocityTracker = null
+        }
+    }
+    /**
+     * 最小距离拖动
+     * @param x Float
+     * @param y Float
+     * @param function Function0<Unit>
+     */
+    private fun minimalDrag(x: Float, y: Float, function: () -> Unit) {
+        Log.d(TAG, "最小拖动距离 x $x  y $y")
+        function()
+    }
+
 
     private fun calculateCollapsedOffset() {
 
@@ -234,7 +388,10 @@ class GlobalBehavior<V : View> : CoordinatorLayout.Behavior<V> {
 
     private val dragCallback = object : ViewDragHelper.Callback() {
         override fun tryCaptureView(child: View, pointerId: Int): Boolean {
-            TODO("Not yet implemented")
+            if (touchingScrollingChild) {
+                return false
+            }
+            return child == viewRef.get()
         }
     }
 
@@ -290,14 +447,17 @@ class GlobalBehavior<V : View> : CoordinatorLayout.Behavior<V> {
                     }
                 })
 
-        Log.d(TAG, "动画是否通过 $startedSettling   偏移房方向 $swipeDirection  合适类容 $collapsedOffset")
+        if (startedSettling) {
+            Log.d(TAG, "动画是否通过 $startedSettling   偏移房方向 $swipeDirection  合适类容 $collapsedOffset")
 
-        if (settleRunnable == null) {
-            settleRunnable = SettleRunnable(child)
+            if (settleRunnable == null) {
+                settleRunnable = SettleRunnable(child)
+            }
+            if (!settleRunnable!!.isPosted) {
+                ViewCompat.postOnAnimation(child, settleRunnable!!)
+                settleRunnable!!.isPosted = true
+            }
         }
-        if (!settleRunnable!!.isPosted) {
-            ViewCompat.postOnAnimation(child, settleRunnable!!)
-            settleRunnable!!.isPosted = true
-        }
+
     }
 }
