@@ -403,9 +403,29 @@ class GlobalBehavior<V : View> : CoordinatorLayout.Behavior<V> {
         }
 
         override fun onViewReleased(releasedChild: View, xvel: Float, yvel: Float) {
+            var swipeDirection = 0
+                  if (xvel==0f && yvel==0f) {
+                       if(state==STATE_COLLAPSED|| state==STATE_HALF_EXPANDED){
+
+                           swipeDirection = when (direction) {
+                               TOP_SHEET -> {
+                                   collapsedOffset + (childHeight - peekHeight)
+                               }
+                               BOTTOM_SHEET -> {
+                                   collapsedOffset - (childHeight - peekHeight)
+                               }
+                               LEFT_SHEET -> {
+                                   collapsedOffset + (childWidth - peekHeight)
+                               }
+                               else -> {
+                                   collapsedOffset - (childWidth - peekHeight)
+                               }
+                           }
+                      }
+                  }
 
             Log.v(TAG, "匿名类 onViewReleased   dx  $xvel dy  $yvel ")
-            super.onViewReleased(releasedChild, xvel, yvel)
+            startSettlingAnimation(releasedChild, state, swipeDirection, true)
         }
 
         override fun clampViewPositionVertical(child: View, top: Int, dy: Int): Int {
@@ -426,6 +446,26 @@ class GlobalBehavior<V : View> : CoordinatorLayout.Behavior<V> {
                 return MathUtils.clamp(left, 0, parentWidth)
             }
             return super.clampViewPositionHorizontal(child, left, dx)
+        }
+
+      override fun getViewHorizontalDragRange(child: View): Int {
+            if (direction == LEFT_SHEET) {
+                return parentWidth
+            }
+            if (direction == RIGHT_SHEET) {
+                return  parentWidth
+            }
+            return super.getViewHorizontalDragRange(child)
+        }
+
+        override fun getViewVerticalDragRange(child: View): Int {
+            if (direction ==TOP_SHEET) {
+                return parentHeight
+            }
+            if (direction == TOP_SHEET) {
+                return parentHeight
+            }
+            return super.getViewVerticalDragRange(child)
         }
 
     }
@@ -469,10 +509,16 @@ class GlobalBehavior<V : View> : CoordinatorLayout.Behavior<V> {
      * @param b Boolean
      */
     private fun startSettlingAnimation(child: View, state: State, swipeDirection: Int, b: Boolean) {
+        Log.d(TAG, "startSettlingAnimation $swipeDirection")
         val startedSettling = (viewDragHelper != null
                 &&
                 if (b) {
-                    viewDragHelper!!.settleCapturedViewAt(child.left, swipeDirection)
+                    if (direction == RIGHT_SHEET || direction == LEFT_SHEET) {
+                        viewDragHelper!!.settleCapturedViewAt(swipeDirection,child.top )
+                    }else{
+                        viewDragHelper!!.settleCapturedViewAt(child.left, swipeDirection)
+                    }
+
                 } else {
                     if (direction == RIGHT_SHEET || direction == LEFT_SHEET) {
                         viewDragHelper!!.smoothSlideViewTo(child, swipeDirection, child.top)
