@@ -4,7 +4,9 @@ import android.content.Context
 import android.util.AttributeSet
 import android.util.Log
 import android.view.*
+import androidx.annotation.Nullable
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.math.MathUtils
 import androidx.core.view.ViewCompat
 import androidx.customview.widget.ViewDragHelper
 import com.liangke.viewpoint.R
@@ -44,7 +46,7 @@ class GlobalBehavior<V : View> : CoordinatorLayout.Behavior<V> {
     private var settleRunnable: SettleRunnable? = null //解决 Runnable
 
     private var isHideInvalidCollapsed = true//隐藏状态时折叠状态是否失效
-    private var state: State = STATE_EXPANDED //状态
+    private var state: State = STATE_COLLAPSED //状态
     private var initialY = 0 //初始化y
     private var initialX = 0 //初始化X
     private var touchingScrollingChild = false//触摸滚动的子布局
@@ -166,13 +168,13 @@ class GlobalBehavior<V : View> : CoordinatorLayout.Behavior<V> {
             return false
         }
         val action: Int = ev.actionMasked
-/*        if (action == MotionEvent.ACTION_DOWN) { //按下
+        if (action == MotionEvent.ACTION_DOWN) { //按下
             reset()
         }
         if (velocityTracker == null) {
             velocityTracker = VelocityTracker.obtain()
         }
-        velocityTracker?.addMovement(ev)*/
+        velocityTracker?.addMovement(ev)
         when (action) {
 
 
@@ -206,7 +208,7 @@ class GlobalBehavior<V : View> : CoordinatorLayout.Behavior<V> {
 
         return (action == MotionEvent.ACTION_MOVE && scroll != null && !ignoreEvents
                 && !parent.isPointInChildBounds(scroll, ev.x.toInt(), ev.y.toInt())
-                && viewDragHelper != null && Math.abs(initialY - ev.getY()) > viewDragHelper!!.touchSlop)
+                && viewDragHelper != null && abs(initialY - ev.y) > viewDragHelper!!.touchSlop)
 
     }
 
@@ -219,15 +221,15 @@ class GlobalBehavior<V : View> : CoordinatorLayout.Behavior<V> {
 
         viewDragHelper?.processTouchEvent(ev)
 
-/*        if (action == MotionEvent.ACTION_DOWN) {
+        if (action == MotionEvent.ACTION_DOWN) {
             reset()
         }
         if (velocityTracker == null) {
             velocityTracker = VelocityTracker.obtain()
         }
-        velocityTracker!!.addMovement(ev)*/
+        velocityTracker!!.addMovement(ev)
 
-      //  Log.d("onTouchEvent ", "${viewDragHelper != null} ${action == MotionEvent.ACTION_MOVE } ${!ignoreEvents} ")
+        //  Log.d("onTouchEvent ", "${viewDragHelper != null} ${action == MotionEvent.ACTION_MOVE } ${!ignoreEvents} ")
         if (viewDragHelper != null && action == MotionEvent.ACTION_MOVE && !ignoreEvents) {
             minimalDrag(ev.x, ev.y) {
                 viewDragHelper!!.captureChildView(child, ev.getPointerId(ev.actionIndex))
@@ -259,9 +261,15 @@ class GlobalBehavior<V : View> : CoordinatorLayout.Behavior<V> {
      * @param y Float
      * @param function Function0<Unit>
      */
-    private fun minimalDrag(x: Float, y: Float, function: () -> Unit) {
+    private fun minimalDrag(x: Float, y: Float, @Nullable function: () -> Unit) {
         Log.d(TAG, "最小拖动距离 x $x  y $y")
-        function()
+
+        if (abs(initialY - y.toInt()) > viewDragHelper!!.touchSlop) {
+            function()
+        }
+        if (abs(initialX - x.toInt()) > viewDragHelper!!.touchSlop) {
+            function()
+        }
     }
 
 
@@ -388,11 +396,42 @@ class GlobalBehavior<V : View> : CoordinatorLayout.Behavior<V> {
             }
             return child == viewRef.get()
         }
+
+        override fun onViewPositionChanged(changedView: View, left: Int, top: Int, dx: Int, dy: Int) {
+            Log.v(TAG, "匿名类 onViewPositionChanged   dx  $dx dy  $dy")
+            super.onViewPositionChanged(changedView, left, top, dx, dy)
+        }
+
+        override fun onViewReleased(releasedChild: View, xvel: Float, yvel: Float) {
+
+            Log.v(TAG, "匿名类 onViewReleased   dx  $xvel dy  $yvel ")
+            super.onViewReleased(releasedChild, xvel, yvel)
+        }
+
+        override fun clampViewPositionVertical(child: View, top: Int, dy: Int): Int {
+            if (direction == TOP_SHEET) {
+                return MathUtils.clamp(top, -parentHeight, 0)
+            }
+            if (direction == BOTTOM_SHEET) {
+                return MathUtils.clamp(top, 0, parentHeight)
+            }
+            return super.clampViewPositionVertical(child, top, dy)
+        }
+
+        override fun clampViewPositionHorizontal(child: View, left: Int, dx: Int): Int {
+            if (direction == LEFT_SHEET) {
+                return MathUtils.clamp(left, -parentWidth, 0)
+            }
+            if (direction == RIGHT_SHEET) {
+                return MathUtils.clamp(left, 0, parentWidth)
+            }
+            return super.clampViewPositionHorizontal(child, left, dx)
+        }
+
     }
 
     companion object {
         private const val TAG = "GlobalBehavior"
-
 
         /**
          * 获取与view关联的GlobalBehavior
