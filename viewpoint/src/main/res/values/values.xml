@@ -14,5 +14,7 @@
         <attr name="gb_peekHeight" format="dimension" />
         <attr name="gb_draggable" format="boolean" />
 
+        <attr name="gb_isDrag" format="boolean"/>
+
     </declare-styleable>
 </resources>

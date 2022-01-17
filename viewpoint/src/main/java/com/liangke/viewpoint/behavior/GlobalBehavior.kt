@@ -64,9 +64,10 @@ class GlobalBehavior<V : View> : CoordinatorLayout.Behavior<V> {
 
     private var activePointerId = 0//活动指针
 
-    private var maximumVelocity = 0f
 
     private val callbacks: ArrayList<GlobalCallbacks> = ArrayList()
+
+    private var isDrag = true //是否支持拖拽
 
     constructor() : super()
 
@@ -77,9 +78,9 @@ class GlobalBehavior<V : View> : CoordinatorLayout.Behavior<V> {
         val dimensionHeight = a.getDimension(R.styleable.GlobalBehavior_gb_peekHeight, -1F)
         setPeekHeight(dimensionHeight)
         setDraggable(a.getBoolean(R.styleable.GlobalBehavior_gb_draggable, true))
+        setDrag(a.getBoolean(R.styleable.GlobalBehavior_gb_isDrag, true))
+
         a.recycle()
-        val configuration = ViewConfiguration.get(context)
-        maximumVelocity = configuration.scaledMaximumFlingVelocity.toFloat()
     }
 
     fun setDraggable(b: Boolean) {
@@ -151,6 +152,13 @@ class GlobalBehavior<V : View> : CoordinatorLayout.Behavior<V> {
         return true
     }
 
+    /**
+     * 是否支持拖动  默认支持
+     * @param b Boolean
+     */
+    fun setDrag(b: Boolean) {
+        isDrag = b
+    }
 
     /**
      * 找到滚动的孩子
@@ -205,9 +213,12 @@ class GlobalBehavior<V : View> : CoordinatorLayout.Behavior<V> {
                         && !parent.isPointInChildBounds(child, initialX, initialY))
             }
         }
-        if (!ignoreEvents && viewDragHelper!!.shouldInterceptTouchEvent(ev)) {
-            return true
+        viewDragHelper?.let {
+            if (!ignoreEvents && it.shouldInterceptTouchEvent(ev)) {
+                return true
+            }
         }
+
 
         val scroll = if (nestedScrollingChildRef != null) nestedScrollingChildRef!!.get() else null
 
@@ -223,10 +234,12 @@ class GlobalBehavior<V : View> : CoordinatorLayout.Behavior<V> {
         }
 
         val action: Int = ev.actionMasked
+       if( isDrag){
+           viewDragHelper?.processTouchEvent(ev)
+       }
 
-        viewDragHelper?.processTouchEvent(ev)
 
-        if (viewDragHelper != null && action == MotionEvent.ACTION_MOVE && !ignoreEvents) {
+        if (viewDragHelper != null && action == MotionEvent.ACTION_MOVE && !ignoreEvents &&  isDrag ) {
             minimalDrag(ev.x, ev.y) {
                 viewDragHelper!!.captureChildView(child, ev.getPointerId(ev.actionIndex))
             }
@@ -234,6 +247,7 @@ class GlobalBehavior<V : View> : CoordinatorLayout.Behavior<V> {
 
         return !ignoreEvents
     }
+
 
     /**
      * 最小距离拖动
@@ -306,7 +320,7 @@ class GlobalBehavior<V : View> : CoordinatorLayout.Behavior<V> {
      *
      * @param callback 全局工作表事件发生时通知的回调。
      */
-    fun addGlobalCallbacks(callback:GlobalCallbacks) {
+    fun addGlobalCallbacks(callback: GlobalCallbacks) {
         if (!callbacks.contains(callback)) {
             callbacks.add(callback)
         }
@@ -416,11 +430,11 @@ class GlobalBehavior<V : View> : CoordinatorLayout.Behavior<V> {
         }
 
         override fun onViewPositionChanged(changedView: View, left: Int, top: Int, dx: Int, dy: Int) {
-          if (direction == TOP_SHEET||direction == BOTTOM_SHEET){
-              setInternalOffset(top)
-          }else{
-              setInternalOffset(left)
-          }
+            if (direction == TOP_SHEET || direction == BOTTOM_SHEET) {
+                setInternalOffset(top)
+            } else {
+                setInternalOffset(left)
+            }
         }
 
         override fun onViewReleased(releasedChild: View, xvel: Float, yvel: Float) {
@@ -595,13 +609,14 @@ class GlobalBehavior<V : View> : CoordinatorLayout.Behavior<V> {
             callbacks[i].onStateChanged(view, state)
         }
     }
+
     /**
      * 偏移
      */
-    private fun setInternalOffset(offset:Int){
+    private fun setInternalOffset(offset: Int) {
         val view = viewRef.get()
 
-        if (view!=null && callbacks.isNotEmpty()){
+        if (view != null && callbacks.isNotEmpty()) {
             for (i in callbacks.indices) {
                 callbacks[i].onSlide(view, offset)
             }
