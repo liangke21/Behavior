@@ -10,6 +10,7 @@ import androidx.core.math.MathUtils
 import androidx.core.view.ViewCompat
 import androidx.customview.widget.ViewDragHelper
 import com.liangke.viewpoint.R
+import com.liangke.viewpoint.callbacks.GlobalCallbacks
 import com.liangke.viewpoint.enum.Direction
 import com.liangke.viewpoint.enum.Direction.*
 import com.liangke.viewpoint.enum.State
@@ -41,21 +42,31 @@ class GlobalBehavior<V : View> : CoordinatorLayout.Behavior<V> {
     var collapsedOffset = 0 //折叠偏移
 
     private var _viewRef: WeakReference<V>? = null
+
     private val viewRef get() = _viewRef!!
+
     var viewDragHelper: ViewDragHelper? = null //查看拖动助手
+
     private var settleRunnable: SettleRunnable? = null //解决 Runnable
 
     private var isHideInvalidCollapsed = true//隐藏状态时折叠状态是否失效
+
     private var state: State = STATE_COLLAPSED //状态
+
     private var initialY = 0 //初始化y
     private var initialX = 0 //初始化X
+
     private var touchingScrollingChild = false//触摸滚动的子布局
+
     var nestedScrollingChildRef: WeakReference<View>? = null //嵌套滚动子引用
+
     private var draggable = true //可拖动的
+
     private var activePointerId = 0//活动指针
 
-    private var velocityTracker: VelocityTracker? = null//速度追踪器
     private var maximumVelocity = 0f
+
+    private val callbacks: ArrayList<GlobalCallbacks> = ArrayList()
 
     constructor() : super()
 
@@ -140,6 +151,7 @@ class GlobalBehavior<V : View> : CoordinatorLayout.Behavior<V> {
         return true
     }
 
+
     /**
      * 找到滚动的孩子
      * @param view View?
@@ -168,15 +180,8 @@ class GlobalBehavior<V : View> : CoordinatorLayout.Behavior<V> {
             return false
         }
         val action: Int = ev.actionMasked
-/*        if (action == MotionEvent.ACTION_DOWN) { //按下
-            reset()
-        }
-        if (velocityTracker == null) {
-            velocityTracker = VelocityTracker.obtain()
-        }
-        velocityTracker?.addMovement(ev)*/
-        when (action) {
 
+        when (action) {
 
             MotionEvent.ACTION_CANCEL, MotionEvent.ACTION_UP -> {
                 touchingScrollingChild = false
@@ -221,15 +226,6 @@ class GlobalBehavior<V : View> : CoordinatorLayout.Behavior<V> {
 
         viewDragHelper?.processTouchEvent(ev)
 
-/*        if (action == MotionEvent.ACTION_DOWN) {
-            reset()
-        }
-        if (velocityTracker == null) {
-            velocityTracker = VelocityTracker.obtain()
-        }
-        velocityTracker!!.addMovement(ev)*/
-
-        //  Log.d("onTouchEvent ", "${viewDragHelper != null} ${action == MotionEvent.ACTION_MOVE } ${!ignoreEvents} ")
         if (viewDragHelper != null && action == MotionEvent.ACTION_MOVE && !ignoreEvents) {
             minimalDrag(ev.x, ev.y) {
                 viewDragHelper!!.captureChildView(child, ev.getPointerId(ev.actionIndex))
@@ -237,22 +233,6 @@ class GlobalBehavior<V : View> : CoordinatorLayout.Behavior<V> {
         }
 
         return !ignoreEvents
-    }
-
-    private fun getYVelocity(): Float {
-        if (velocityTracker == null) {
-            return 0f
-        }
-        velocityTracker!!.computeCurrentVelocity(1000, maximumVelocity)
-        return velocityTracker!!.getYVelocity(activePointerId)
-    }
-
-    private fun reset() {
-        activePointerId = ViewDragHelper.INVALID_POINTER
-        if (velocityTracker != null) {
-            velocityTracker!!.recycle()
-            velocityTracker = null
-        }
     }
 
     /**
@@ -322,6 +302,26 @@ class GlobalBehavior<V : View> : CoordinatorLayout.Behavior<V> {
     }
 
     /**
+     * 添加回调以通知全局工作表事件。
+     *
+     * @param callback 全局工作表事件发生时通知的回调。
+     */
+    fun addGlobalCallbacks(callback:GlobalCallbacks) {
+        if (!callbacks.contains(callback)) {
+            callbacks.add(callback)
+        }
+    }
+
+    /**
+     * 删除以前添加的回调。
+     *
+     * @param callback 要删除的回调。
+     */
+    fun removeGlobalCallbacks(callback: GlobalCallbacks) {
+        callbacks.remove(callback)
+    }
+
+    /**
      * 设置状态
      * @param state State
      */
@@ -332,59 +332,77 @@ class GlobalBehavior<V : View> : CoordinatorLayout.Behavior<V> {
     }
 
     private fun setTleToState(child: View, state: State) {
-        var swipeDirection = 0
-        swipeDirection = when (state) {
+        val swipeDirection: Int = when (state) {
             STATE_EXPANDED -> {
-                if (direction == TOP_SHEET) {
-                    collapsedOffset + (childHeight - peekHeight)
-                } else if (direction == BOTTOM_SHEET) {
-                    collapsedOffset - (childHeight - peekHeight)
-                } else if (direction == LEFT_SHEET) {
-                    collapsedOffset + (childWidth - peekHeight)
-                } else {
-                    collapsedOffset - (childWidth - peekHeight)
+                when (direction) {
+                    TOP_SHEET -> {
+                        collapsedOffset + (childHeight - peekHeight)
+                    }
+                    BOTTOM_SHEET -> {
+                        collapsedOffset - (childHeight - peekHeight)
+                    }
+                    LEFT_SHEET -> {
+                        collapsedOffset + (childWidth - peekHeight)
+                    }
+                    else -> {
+                        collapsedOffset - (childWidth - peekHeight)
+                    }
                 }
             }
             STATE_COLLAPSED -> {
                 if (this.state == STATE_HIDDEN && isHideInvalidCollapsed) {
                     return
                 }
-                if (direction == TOP_SHEET) {
-                    collapsedOffset
-                } else if (direction == BOTTOM_SHEET) {
-                    collapsedOffset
-                } else if (direction == LEFT_SHEET) {
-                    collapsedOffset
-                } else {
-                    collapsedOffset
+                when (direction) {
+                    TOP_SHEET -> {
+                        collapsedOffset
+                    }
+                    BOTTOM_SHEET -> {
+                        collapsedOffset
+                    }
+                    LEFT_SHEET -> {
+                        collapsedOffset
+                    }
+                    else -> {
+                        collapsedOffset
+                    }
                 }
             }
             STATE_HIDDEN -> {
-                if (direction == TOP_SHEET) {
-                    collapsedOffset - peekHeight
-                } else if (direction == BOTTOM_SHEET) {
-                    collapsedOffset + peekHeight
-                } else if (direction == LEFT_SHEET) {
-                    collapsedOffset - peekHeight
-                } else {
-                    collapsedOffset + peekHeight
+                when (direction) {
+                    TOP_SHEET -> {
+                        collapsedOffset - peekHeight
+                    }
+                    BOTTOM_SHEET -> {
+                        collapsedOffset + peekHeight
+                    }
+                    LEFT_SHEET -> {
+                        collapsedOffset - peekHeight
+                    }
+                    else -> {
+                        collapsedOffset + peekHeight
+                    }
                 }
             }
             STATE_HALF_EXPANDED -> {
-                if (direction == TOP_SHEET) {
-                    collapsedOffset + (childHeight / 2 - peekHeight)
-                } else if (direction == BOTTOM_SHEET) {
-                    collapsedOffset - (childHeight / 2 - peekHeight)
-                } else if (direction == LEFT_SHEET) {
-                    collapsedOffset + (childWidth / 2 - peekHeight)
-                } else {
-                    collapsedOffset - (childWidth / 2 - peekHeight)
+                when (direction) {
+                    TOP_SHEET -> {
+                        collapsedOffset + (childHeight / 2 - peekHeight)
+                    }
+                    BOTTOM_SHEET -> {
+                        collapsedOffset - (childHeight / 2 - peekHeight)
+                    }
+                    LEFT_SHEET -> {
+                        collapsedOffset + (childWidth / 2 - peekHeight)
+                    }
+                    else -> {
+                        collapsedOffset - (childWidth / 2 - peekHeight)
+                    }
                 }
 
             }
         }
         this.state = state
-        Log.d(TAG, "swipeDirection $swipeDirection")
         startSettlingAnimation(child, state, swipeDirection, false)
     }
 
@@ -398,8 +416,11 @@ class GlobalBehavior<V : View> : CoordinatorLayout.Behavior<V> {
         }
 
         override fun onViewPositionChanged(changedView: View, left: Int, top: Int, dx: Int, dy: Int) {
-            Log.v(TAG, "匿名类 onViewPositionChanged   dx  $dx dy  $dy")
-            super.onViewPositionChanged(changedView, left, top, dx, dy)
+          if (direction == TOP_SHEET||direction == BOTTOM_SHEET){
+              setInternalOffset(top)
+          }else{
+              setInternalOffset(left)
+          }
         }
 
         override fun onViewReleased(releasedChild: View, xvel: Float, yvel: Float) {
@@ -533,7 +554,7 @@ class GlobalBehavior<V : View> : CoordinatorLayout.Behavior<V> {
      * @param b Boolean
      */
     private fun startSettlingAnimation(child: View, state: State, swipeDirection: Int, b: Boolean) {
-        Log.d(TAG, "startSettlingAnimation $swipeDirection")
+
         val startedSettling = (viewDragHelper != null
                 &&
                 if (b) {
@@ -550,8 +571,8 @@ class GlobalBehavior<V : View> : CoordinatorLayout.Behavior<V> {
                         viewDragHelper!!.smoothSlideViewTo(child, child.left, swipeDirection)
                     }
                 })
+        setInternalState(state)
         if (startedSettling) {
-            Log.d(TAG, "动画是否通过 $startedSettling   偏移房方向 $swipeDirection  合适类容 $collapsedOffset")
 
             if (settleRunnable == null) {
                 settleRunnable = SettleRunnable(child)
@@ -562,5 +583,28 @@ class GlobalBehavior<V : View> : CoordinatorLayout.Behavior<V> {
             }
         }
 
+    }
+
+    /**
+     * 内部状态
+     * @param state State
+     */
+    private fun setInternalState(state: State) {
+        val view = viewRef.get() ?: return
+        for (i in callbacks.indices) {
+            callbacks[i].onStateChanged(view, state)
+        }
+    }
+    /**
+     * 偏移
+     */
+    private fun setInternalOffset(offset:Int){
+        val view = viewRef.get()
+
+        if (view!=null && callbacks.isNotEmpty()){
+            for (i in callbacks.indices) {
+                callbacks[i].onSlide(view, offset)
+            }
+        }
     }
 }
