@@ -168,13 +168,13 @@ class GlobalBehavior<V : View> : CoordinatorLayout.Behavior<V> {
             return false
         }
         val action: Int = ev.actionMasked
-        if (action == MotionEvent.ACTION_DOWN) { //按下
+/*        if (action == MotionEvent.ACTION_DOWN) { //按下
             reset()
         }
         if (velocityTracker == null) {
             velocityTracker = VelocityTracker.obtain()
         }
-        velocityTracker?.addMovement(ev)
+        velocityTracker?.addMovement(ev)*/
         when (action) {
 
 
@@ -221,13 +221,13 @@ class GlobalBehavior<V : View> : CoordinatorLayout.Behavior<V> {
 
         viewDragHelper?.processTouchEvent(ev)
 
-        if (action == MotionEvent.ACTION_DOWN) {
+/*        if (action == MotionEvent.ACTION_DOWN) {
             reset()
         }
         if (velocityTracker == null) {
             velocityTracker = VelocityTracker.obtain()
         }
-        velocityTracker!!.addMovement(ev)
+        velocityTracker!!.addMovement(ev)*/
 
         //  Log.d("onTouchEvent ", "${viewDragHelper != null} ${action == MotionEvent.ACTION_MOVE } ${!ignoreEvents} ")
         if (viewDragHelper != null && action == MotionEvent.ACTION_MOVE && !ignoreEvents) {
@@ -404,25 +404,51 @@ class GlobalBehavior<V : View> : CoordinatorLayout.Behavior<V> {
 
         override fun onViewReleased(releasedChild: View, xvel: Float, yvel: Float) {
             var swipeDirection = 0
-                  if (xvel==0f && yvel==0f) {
-                       if(state==STATE_COLLAPSED|| state==STATE_HALF_EXPANDED){
 
-                           swipeDirection = when (direction) {
-                               TOP_SHEET -> {
-                                   collapsedOffset + (childHeight - peekHeight)
-                               }
-                               BOTTOM_SHEET -> {
-                                   collapsedOffset - (childHeight - peekHeight)
-                               }
-                               LEFT_SHEET -> {
-                                   collapsedOffset + (childWidth - peekHeight)
-                               }
-                               else -> {
-                                   collapsedOffset - (childWidth - peekHeight)
-                               }
-                           }
-                      }
-                  }
+
+            when (direction) {
+                TOP_SHEET -> {
+                    if ((state == STATE_COLLAPSED || state == STATE_HALF_EXPANDED) && (xvel == 0f && yvel == 0f)) {
+                        swipeDirection = collapsedOffset + (childHeight - peekHeight)
+                        state = STATE_EXPANDED
+                    }
+
+                    if (state == STATE_EXPANDED && yvel < 0) {
+                        swipeDirection = collapsedOffset
+                    }
+                }
+                BOTTOM_SHEET -> {
+
+                    if ((state == STATE_COLLAPSED || state == STATE_HALF_EXPANDED) && (xvel == 0f && yvel == 0f)) {
+                        swipeDirection = collapsedOffset - (childHeight - peekHeight)
+                        state = STATE_EXPANDED
+                    }
+
+                    if (state == STATE_EXPANDED && yvel > 0) {
+                        swipeDirection = collapsedOffset
+                    }
+                }
+                LEFT_SHEET -> {
+                    if ((state == STATE_COLLAPSED || state == STATE_HALF_EXPANDED) && (xvel == 0f && yvel == 0f)) {
+                        swipeDirection = collapsedOffset + (childWidth - peekHeight)
+                        state = STATE_EXPANDED
+                    }
+                    if (state == STATE_EXPANDED && xvel < 0) {
+                        swipeDirection = collapsedOffset
+                    }
+                }
+                else -> {
+                    if ((state == STATE_COLLAPSED || state == STATE_HALF_EXPANDED) && (xvel == 0f && yvel == 0f)) {
+                        swipeDirection = collapsedOffset - (childWidth - peekHeight)
+                        state = STATE_EXPANDED
+                    }
+                    if (state == STATE_EXPANDED && xvel > 0) {
+                        swipeDirection = collapsedOffset
+                    }
+
+                }
+            }
+
 
             Log.v(TAG, "匿名类 onViewReleased   dx  $xvel dy  $yvel ")
             startSettlingAnimation(releasedChild, state, swipeDirection, true)
@@ -448,18 +474,18 @@ class GlobalBehavior<V : View> : CoordinatorLayout.Behavior<V> {
             return super.clampViewPositionHorizontal(child, left, dx)
         }
 
-      override fun getViewHorizontalDragRange(child: View): Int {
+        override fun getViewHorizontalDragRange(child: View): Int {
             if (direction == LEFT_SHEET) {
                 return parentWidth
             }
             if (direction == RIGHT_SHEET) {
-                return  parentWidth
+                return parentWidth
             }
             return super.getViewHorizontalDragRange(child)
         }
 
         override fun getViewVerticalDragRange(child: View): Int {
-            if (direction ==TOP_SHEET) {
+            if (direction == TOP_SHEET) {
                 return parentHeight
             }
             if (direction == TOP_SHEET) {
@@ -514,8 +540,8 @@ class GlobalBehavior<V : View> : CoordinatorLayout.Behavior<V> {
                 &&
                 if (b) {
                     if (direction == RIGHT_SHEET || direction == LEFT_SHEET) {
-                        viewDragHelper!!.settleCapturedViewAt(swipeDirection,child.top )
-                    }else{
+                        viewDragHelper!!.settleCapturedViewAt(swipeDirection, child.top)
+                    } else {
                         viewDragHelper!!.settleCapturedViewAt(child.left, swipeDirection)
                     }
 
@@ -526,7 +552,6 @@ class GlobalBehavior<V : View> : CoordinatorLayout.Behavior<V> {
                         viewDragHelper!!.smoothSlideViewTo(child, child.left, swipeDirection)
                     }
                 })
-
         if (startedSettling) {
             Log.d(TAG, "动画是否通过 $startedSettling   偏移房方向 $swipeDirection  合适类容 $collapsedOffset")
 
