@@ -5,11 +5,12 @@
     android:id="@+id/frameLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/design_dark_default_color_on_surface"
+    style="@style/fragment_bj"
     tools:context=".fragment.TopFragment">
 
     <Button
         android:id="@+id/right_button1"
+        style="@style/button_bj"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="132dp"
@@ -21,6 +22,7 @@
 
     <Button
         android:id="@+id/right_button2"
+        style="@style/button_bj"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="2dp"
@@ -32,6 +34,7 @@
 
     <Button
         android:id="@+id/right_button3"
+        style="@style/button_bj"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="88dp"
@@ -42,6 +45,7 @@
 
     <Button
         android:id="@+id/right_button4"
+        style="@style/button_bj"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="76dp"
@@ -66,7 +70,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-
+        tools:visibility="gone"
         >
 
         <include

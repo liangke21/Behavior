@@ -4,7 +4,7 @@
     android:id="@+id/sheet"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#2C2CB8"
+    android:background="#F9AA33"
     android:orientation="vertical"
     app:direction="left"
     app:gb_peekHeight="50dp"
@@ -15,6 +15,7 @@
         android:layout_height="80dp"
         android:gravity="center"
         android:text="尽管呼吸着同一天空的气息"
+        android:textColor="@color/black"
         android:textSize="20sp" />
 
     <TextView
@@ -22,6 +23,7 @@
         android:layout_height="80dp"
         android:gravity="center"
         android:text="却无法拥抱到你"
+        android:textColor="@color/black"
         android:textSize="20sp" />
 
     <TextView
@@ -29,6 +31,7 @@
         android:layout_height="80dp"
         android:gravity="center"
         android:text="如果转换了时空身份和姓名"
+        android:textColor="@color/black"
         android:textSize="20sp" />
 
     <TextView
@@ -36,6 +39,7 @@
         android:layout_height="80dp"
         android:gravity="center"
         android:text="但愿认得你眼睛"
+        android:textColor="@color/black"
         android:textSize="20sp" />
 
     <FrameLayout

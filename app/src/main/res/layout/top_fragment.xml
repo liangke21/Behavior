@@ -5,11 +5,12 @@
     android:id="@+id/frameLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/design_dark_default_color_on_surface"
+    style="@style/fragment_bj"
     tools:context=".fragment.TopFragment">
 
     <Button
         android:id="@+id/top_button1"
+        style="@style/button_bj"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="132dp"
@@ -21,6 +22,7 @@
 
     <Button
         android:id="@+id/top_button2"
+        style="@style/button_bj"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="2dp"
@@ -32,6 +34,7 @@
 
     <Button
         android:id="@+id/top_button3"
+        style="@style/button_bj"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="88dp"
@@ -42,6 +45,7 @@
 
     <Button
         android:id="@+id/top_button4"
+        style="@style/button_bj"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="76dp"
@@ -64,10 +68,11 @@
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
+         tools:visibility="gone"
         app:layout_constraintTop_toTopOf="parent"
-
-        >
+        app:layout_constraintVertical_bias="0.0">
 
         <include
             android:id="@+id/sheet"

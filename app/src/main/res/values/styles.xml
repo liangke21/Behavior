@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="fragment_bj">
+        <item name="android:background">@color/design_snackbar_background_color</item>
+    </style>
+
+    <style name="button_bj">
+        <item name="android:background">#1DE9B6</item>
+    </style>
+
+
+</resources>
