@@ -449,8 +449,6 @@ class GlobalBehavior<V : View> : CoordinatorLayout.Behavior<V> {
                 }
             }
 
-
-            Log.v(TAG, "匿名类 onViewReleased   dx  $xvel dy  $yvel ")
             startSettlingAnimation(releasedChild, state, swipeDirection, true)
         }
 
