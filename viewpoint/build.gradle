@@ -7,18 +7,17 @@ plugins {
 publishing {
     publications {
         maven(MavenPublication) {
-            groupId = "org.company"
-            artifactId = "sample"
-            version = "0.9-SNAPSHOT"
-           // Publish the output of the sourceJar task
-           // artifact 'build/outputs/aar/viewpoint-debug.aar' // Publish a file created outside of the build
-         // artifact source: sourceJar, classifier: 'src', extension: 'zip'
-          //from components.java
+            groupId = "com.liangke"
+            artifactId = "viewpoint"
+            version = "1.4"
+
+            artifact 'build/outputs/aar/viewpoint-release.aar'
+
         }
     }
     repositories {
         maven {
-            url "https://maven.pkg.jetbrains.space/liangke/p/yuehaoting/maven"
+            url "https://maven.pkg.jetbrains.space/liangke/p/android/maven"
             credentials {
                 username = spaceUsername
                 password = spacePassword
