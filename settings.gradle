@@ -1,15 +1,27 @@
 pluginManagement {
     repositories {
         gradlePluginPortal()
-        google()
-        mavenCentral()
+        maven { // google()
+            url "https://maven.aliyun.com/repository/google"
+        }
+
+        maven {// mavenCentral()
+            url "https://maven.aliyun.com/repository/central"
+        }
     }
 }
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
-        google()
-        mavenCentral()
+
+        maven { // google()
+            url "https://maven.aliyun.com/repository/google"
+        }
+
+        maven {// mavenCentral()
+            url "https://maven.aliyun.com/repository/central"
+        }
+
     }
 }
 rootProject.name = "My Behavior"
