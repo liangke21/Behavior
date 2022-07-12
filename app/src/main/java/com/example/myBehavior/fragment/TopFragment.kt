@@ -1,13 +1,12 @@
 package com.example.myBehavior.fragment
 
-import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.example.myBehavior.R
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import com.example.myBehavior.databinding.TopFragmentBinding
 import com.liangke.viewpoint.behavior.GlobalBehavior
 import com.liangke.viewpoint.callbacks.GlobalCallbacks
@@ -62,7 +61,6 @@ class TopFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         view.setOnTouchListener { v, _ ->
-            //在这里面拦截点击事件,并进行相应的操作
             v.performClick()
             true
         }

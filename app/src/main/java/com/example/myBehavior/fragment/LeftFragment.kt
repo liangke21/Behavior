@@ -1,11 +1,10 @@
 package com.example.myBehavior.fragment
 
-import android.annotation.SuppressLint
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import com.example.myBehavior.databinding.LeftFragmentBinding
 import com.liangke.viewpoint.behavior.GlobalBehavior
 import com.liangke.viewpoint.enum.Direction
@@ -43,7 +42,6 @@ class LeftFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         view.setOnTouchListener { v, _ ->
-            //在这里面拦截点击事件,并进行相应的操作
             v.performClick()
             true
         }

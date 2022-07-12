@@ -1,22 +1,13 @@
 package com.example.myBehavior
 
-import android.annotation.SuppressLint
-import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.KeyEvent
-import android.view.MotionEvent
-import android.view.View
-import android.view.View.*
-import android.widget.Button
-import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AppCompatActivity
 import com.example.myBehavior.databinding.ActivityMainBinding
 import com.example.myBehavior.fragment.BottomFragment
 import com.example.myBehavior.fragment.LeftFragment
 import com.example.myBehavior.fragment.RightFragment
 import com.example.myBehavior.fragment.TopFragment
-import com.liangke.viewpoint.behavior.GlobalBehavior
 
 
 class MainActivity : AppCompatActivity() {
